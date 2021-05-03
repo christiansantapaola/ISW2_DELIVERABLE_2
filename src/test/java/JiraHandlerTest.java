@@ -1,6 +1,6 @@
-import JiraSubSystem.JiraHandler;
-import JiraSubSystem.Release;
-import JiraSubSystem.Ticket;
+import it.uniroma2.santapaola.christian.JiraSubSystem.JiraHandler;
+import it.uniroma2.santapaola.christian.JiraSubSystem.Release;
+import it.uniroma2.santapaola.christian.JiraSubSystem.Ticket;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
