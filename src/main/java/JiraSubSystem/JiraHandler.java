@@ -1,23 +1,19 @@
 package JiraSubSystem;
 
-import org.jfree.chart.axis.Tick;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.*;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.text.CollationElementIterator;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-
 import utility.CSVWriter;
 import utility.JsonHelper;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 /**
  *  JiraSubSystem.JiraHandler is a class which interface with JIRA.
  *  This class will handle query to jira given a project, parse the output and return it in a

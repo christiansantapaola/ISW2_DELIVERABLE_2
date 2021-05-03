@@ -1,12 +1,9 @@
 package Mining;
 
 import GitSubSystem.Commit;
-import JiraSubSystem.Release;
 import JiraSubSystem.Ticket;
-import Proportion.Proportion;
 
 import java.time.LocalDate;
-import java.util.*;
 
 
 public class Bug {

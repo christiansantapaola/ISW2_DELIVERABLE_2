@@ -1,7 +1,10 @@
 package Mining;
 
-import GitSubSystem.*;
+import GitSubSystem.Commit;
+import GitSubSystem.DiffStat;
+import GitSubSystem.DiffType;
 import GitSubSystem.Exception.GitHandlerException;
+import GitSubSystem.GitHandler;
 import JiraSubSystem.Release;
 import Mining.Exception.NoReleaseFoundException;
 

@@ -1,11 +1,9 @@
 package Proportion;
 
 import JiraSubSystem.Release;
-import JiraSubSystem.ReleaseTimeline;
 import Mining.Bug;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 public class IncrementProportion extends Proportion {
 

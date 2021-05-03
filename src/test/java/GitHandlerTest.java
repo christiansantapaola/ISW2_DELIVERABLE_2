@@ -1,16 +1,14 @@
 import GitSubSystem.Commit;
 import GitSubSystem.DiffStat;
-import GitSubSystem.GitHandler;
 import GitSubSystem.Exception.GitHandlerException;
+import GitSubSystem.GitHandler;
 import GitSubSystem.Tag;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;

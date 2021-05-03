@@ -1,11 +1,10 @@
 package JiraSubSystem;
 
-import JiraSubSystem.Release;
-import com.sun.source.tree.BreakTree;
-
-
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class ReleaseTimeline implements Iterable<Release> {
     private SortedSet<Release> releases;

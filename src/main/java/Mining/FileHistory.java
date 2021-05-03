@@ -5,7 +5,6 @@ import GitSubSystem.DiffStat;
 import GitSubSystem.DiffType;
 import JiraSubSystem.Release;
 
-import javax.swing.text.html.Option;
 import java.util.*;
 
 public class FileHistory {

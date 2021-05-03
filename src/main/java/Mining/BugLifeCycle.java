@@ -4,8 +4,6 @@ import JiraSubSystem.Release;
 import JiraSubSystem.ReleaseTimeline;
 import Proportion.Proportion;
 
-import java.util.Optional;
-
 public class BugLifeCycle {
     private Bug bug;
     private Release IV;

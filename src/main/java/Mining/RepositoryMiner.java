@@ -1,22 +1,20 @@
 package Mining;
 
 import GitSubSystem.Commit;
-import GitSubSystem.DiffStat;
-import GitSubSystem.GitHandler;
 import GitSubSystem.Exception.GitHandlerException;
-import GitSubSystem.Tag;
+import GitSubSystem.GitHandler;
 import JiraSubSystem.JiraHandler;
-import JiraSubSystem.Release;
 import JiraSubSystem.ReleaseTimeline;
 import JiraSubSystem.Ticket;
 import Mining.Exception.NoReleaseFoundException;
-import Proportion.Proportion;
 import Proportion.IncrementProportion;
+import Proportion.Proportion;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 
 /**
