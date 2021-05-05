@@ -2,7 +2,8 @@ package it.uniroma2.santapaola.christian.Mining;
 
 import it.uniroma2.santapaola.christian.GitSubSystem.Commit;
 import it.uniroma2.santapaola.christian.GitSubSystem.Exception.GitHandlerException;
-import it.uniroma2.santapaola.christian.GitSubSystem.GitHandler;
+import it.uniroma2.santapaola.christian.GitSubSystem.Git;
+import it.uniroma2.santapaola.christian.GitSubSystem.GitFactory;
 import it.uniroma2.santapaola.christian.JiraSubSystem.JiraHandler;
 import it.uniroma2.santapaola.christian.JiraSubSystem.ReleaseTimeline;
 import it.uniroma2.santapaola.christian.JiraSubSystem.Ticket;
@@ -15,13 +16,14 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 
 /**
  * it.uniroma2.santapaola.christian.Mining.RepositoryMiner Extract Information from a git repository using information from Jira.
  */
 public class RepositoryMiner {
-    private GitHandler git;
+    private Git git;
     private JiraHandler jira;
     private ReleaseTimeline releases;
     private Proportion proportion;
@@ -37,8 +39,10 @@ public class RepositoryMiner {
      * @param jiraProjectName Project Name ID on JIRA issue.apache
      * @throws IOException
      */
-    public RepositoryMiner(String gitPath, String jiraProjectName, String jiraUrl) throws IOException, GitHandlerException {
-        git = new GitHandler(new File(gitPath));
+    public RepositoryMiner(String gitPath, String gitUrl, String jiraProjectName, String jiraUrl) throws IOException, GitHandlerException {
+        GitFactory gitFactory = new GitFactory(gitUrl, gitPath);
+        gitFactory.setGitProcess();
+        git = gitFactory.build();
         jira = new JiraHandler(jiraProjectName, jiraUrl);
         releases = jira.getReleases();
         tickets = jira.getBugTicket();
@@ -46,27 +50,6 @@ public class RepositoryMiner {
         proportion = new IncrementProportion(bugs, releases.getLast().get());
         proportion.computeProportion();
         timeline = new Timeline(bugs, releases, proportion);
-    }
-
-    /**
-     * constructor of it.uniroma2.santapaola.christian.Mining.RepositoryMiner.
-     *
-     * @param url             url pointing the the remote git repository
-     * @param newRepoPath     File object pointing to where to clone the remote repository.
-     * @param jiraProjectName Project Name ID on Jira issue.apache
-     * @throws IOException
-     * @throws GitHandlerException
-     */
-    public RepositoryMiner(String url, String newRepoPath, String jiraProjectName, String jiraUrl) throws IOException, GitHandlerException {
-        git = new GitHandler(url, new File(newRepoPath));
-        jira = new JiraHandler(jiraProjectName, jiraUrl);
-        releases = jira.getReleases();
-        tickets = jira.getBugTicket();
-        bugs = getBugs();
-        proportion = new IncrementProportion(bugs, releases.getLast().get());
-        proportion.computeProportion();
-        timeline = new Timeline(bugs, releases, proportion);
-
     }
 
     /**
@@ -89,8 +72,9 @@ public class RepositoryMiner {
         return result;
     }
 
-    public Bug createBug(Ticket ticket, Commit commit) {
-        return new Bug(commit, ticket);
+    public Bug createBug(Ticket ticket, Commit commit) throws GitHandlerException {
+        Set<String> snapshot = git.getChangedFiles(commit, ".java");
+        return new Bug(commit, ticket, snapshot);
     }
 
     public ProjectState newProjectState() throws NoReleaseFoundException, GitHandlerException, IOException {

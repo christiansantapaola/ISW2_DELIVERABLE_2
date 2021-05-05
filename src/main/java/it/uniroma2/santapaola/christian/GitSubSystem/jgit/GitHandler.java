@@ -1,5 +1,6 @@
-package it.uniroma2.santapaola.christian.GitSubSystem;
+package it.uniroma2.santapaola.christian.GitSubSystem.jgit;
 
+import it.uniroma2.santapaola.christian.GitSubSystem.*;
 import it.uniroma2.santapaola.christian.GitSubSystem.Exception.GitHandlerException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -12,21 +13,22 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.MessageRevFilter;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * GitSubSystem.GitHandler is a class which handle all the git subsystem.
  * All Git related operation should be contained in this class.
  */
-public class GitHandler {
+public class GitHandler implements it.uniroma2.santapaola.christian.GitSubSystem.Git {
     private Repository repository;
     private String root;
+    private Git git;
+    private DiffFormatter diffFormatter;
 
     /**
      * Constructor of GitSubSystem.GitHandler instance from local git repository.
@@ -40,6 +42,10 @@ public class GitHandler {
         repositoryBuilder.setGitDir(localRepositoryGit);
         repository = repositoryBuilder.build();
         root = localRepositoryGit.getParent();
+        git = new Git(repository);
+        diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
+        diffFormatter.setRepository(repository);
+        diffFormatter.setContext(0);
     }
 
     /**
@@ -52,7 +58,7 @@ public class GitHandler {
      */
     public GitHandler(String url, File newLocalRepository) throws IOException, GitHandlerException {
         try {
-            Git git = Git.cloneRepository()
+            git = Git.cloneRepository()
                     .setURI(url)
                     .setDirectory(newLocalRepository)
                     .setCloneAllBranches(true)
@@ -63,6 +69,9 @@ public class GitHandler {
             repositoryBuilder.setGitDir(newGitFolder);
             repository = repositoryBuilder.build();
             root = newLocalRepository.getAbsolutePath();
+            diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
+            diffFormatter.setRepository(repository);
+            diffFormatter.setContext(0);
         } catch (GitAPIException e) {
             throw new GitHandlerException(e.getMessage(), e.getCause());
         }
@@ -77,10 +86,10 @@ public class GitHandler {
      * @throws IOException
      * @throws GitHandlerException
      */
+    @Override
     public List<Commit> grep(String pattern)
-            throws IOException, GitHandlerException {
+            throws GitHandlerException {
         try {
-            Git git = new Git(repository);
             ObjectId head = repository.resolve(Constants.HEAD);
             RevFilter revFilter = MessageRevFilter.create(pattern);
             Iterable<RevCommit> commits = git.log().add(head).setRevFilter(revFilter).call();
@@ -92,13 +101,14 @@ public class GitHandler {
             return result;
         } catch (GitAPIException e) {
             throw new GitHandlerException(e.getMessage(), e.getCause());
+        }  catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
     public List<Commit> grep(String pattern, boolean fastNoDiff)
             throws IOException, GitHandlerException {
         try {
-            Git git = new Git(repository);
             ObjectId head = repository.resolve(Constants.HEAD);
             RevFilter revFilter = MessageRevFilter.create(pattern);
             Iterable<RevCommit> commits = git.log().add(head).setRevFilter(revFilter).call();
@@ -117,9 +127,28 @@ public class GitHandler {
         return root;
     }
 
-    public List<Commit> log(String path) throws IOException, GitHandlerException {
+    @Override
+    public List<Commit> log() throws GitHandlerException {
         try {
-            Git git = new Git(repository);
+            ObjectId head = repository.resolve(Constants.HEAD);
+            Iterable<RevCommit> revCommits = git.log().add(head).all().call();
+            List<Commit> commits = new LinkedList<>();
+            for (RevCommit revCommit : revCommits) {
+                Commit commit = createCommit(revCommit, false);
+                commits.add(commit);
+            }
+            return commits;
+        } catch (GitAPIException e) {
+            throw new GitHandlerException(e.getMessage(), e.getCause());
+        } catch (IOException e) {
+            throw new GitHandlerException(e.getMessage(), e.getCause());
+        }
+
+    }
+
+    @Override
+    public List<Commit> log(String path) throws GitHandlerException {
+        try {
             ObjectId head = repository.resolve(Constants.HEAD);
             Iterable<RevCommit> revCommits = git.log().add(head).addPath(path).call();
             List<Commit> commits = new LinkedList<>();
@@ -130,12 +159,13 @@ public class GitHandler {
             return commits;
         } catch (GitAPIException e) {
             throw new GitHandlerException(e.getMessage(), e.getCause());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
     public List<Commit> log(String path, boolean fastNoDiff) throws IOException, GitHandlerException {
         try {
-            Git git = new Git(repository);
             ObjectId head = repository.resolve(Constants.HEAD);
             Iterable<RevCommit> revCommits = git.log().add(head).addPath(path).call();
             List<Commit> commits = new LinkedList<>();
@@ -149,9 +179,13 @@ public class GitHandler {
         }
     }
 
-    public List<Commit> log(Optional<String> tagA, Optional<String> tagB, boolean fastNoDiff) throws IOException, GitHandlerException {
+    @Override
+    public List<Commit> log(Optional<String> tagA, Optional<String> tagB) throws GitHandlerException {
+        return log(tagA, tagB, true);
+    }
+
+    public List<Commit> log(Optional<String> tagA, Optional<String> tagB, boolean fastNoDiff) throws GitHandlerException {
         try {
-            Git git = new Git(repository);
             ObjectId head = repository.resolve(Constants.HEAD);
             Iterable<RevCommit> revCommits;
             if (tagA.isEmpty() && tagB.isEmpty()) {
@@ -180,12 +214,13 @@ public class GitHandler {
             return commits;
         } catch (GitAPIException e) {
             throw new GitHandlerException(e.getMessage(), e.getCause());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
-    public List<Commit> log(boolean fastNoDiff) throws IOException, GitHandlerException {
+    public List<Commit> log(boolean fastNoDiff) throws GitHandlerException {
         try {
-            Git git = new Git(repository);
             ObjectId head = repository.resolve(Constants.HEAD);
             Iterable<RevCommit> revCommits = git.log().add(head).all().call();
             List<Commit> commits = new LinkedList<>();
@@ -196,25 +231,25 @@ public class GitHandler {
             return commits;
         } catch (GitAPIException e) {
             throw new GitHandlerException(e.getMessage(), e.getCause());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
 
     public void checkout(String tag) throws IOException, GitHandlerException {
         try {
-            Git git = new Git(repository);
             git.checkout().setCreateBranch(false).setName(tag).call();
         } catch (GitAPIException e) {
             throw new GitHandlerException(e.getMessage(), e.getCause());
         }
     }
 
-    public List<DiffStat> diff(Commit c1, Commit c2) throws IOException, GitHandlerException {
+    public List<DiffStat> diff(Commit c1, Commit c2) throws GitHandlerException {
         return diff(c1.getName(), c2.getName());
     }
 
-    public List<DiffStat> diff(String c1, String c2) throws IOException, GitHandlerException {
-        Git git = new Git(repository);
+    public List<DiffStat> diff(String c1, String c2) throws GitHandlerException {
         try {
             List<DiffEntry> diffs = GitHelper.getListDiffEntry(repository, git, c1, c2);
             List<DiffStat> result = new ArrayList<>();
@@ -225,11 +260,34 @@ public class GitHandler {
             return result;
         } catch (GitAPIException e) {
             throw new GitHandlerException(e.getMessage(), e.getCause());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
-    public DiffStat diff(Commit c1, Commit c2, String path) throws IOException, GitHandlerException {
-        Git git = new Git(repository);
+    public List<DiffStat> diffTest(String c1, String c2) throws  GitHandlerException {
+        try {
+            String cmd = String.format("git.exe diff --stat \"%s\" \"%s\"", c1, c2);
+            ProcessBuilder pb = new ProcessBuilder("git", "diff", "--stat", c1, c2);
+            pb.directory(new File(getRepositoryRootPath()));
+            Process process = pb.start();
+            BufferedReader output = new BufferedReader(new InputStreamReader((process.getInputStream())));
+            output.lines().forEach(new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    System.out.println(s);
+                }
+            });
+            return null;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (Exception e) {
+            throw new GitHandlerException(e.getMessage(), e.getCause());
+        }
+    }
+
+
+    public DiffStat diff(Commit c1, Commit c2, String path) throws GitHandlerException {
         try {
             List<DiffEntry> diffs = GitHelper.getListDiffEntry(repository, git, c1.getName(), c2.getName());
             for (DiffEntry diffEntry : diffs) {
@@ -241,12 +299,14 @@ public class GitHandler {
             return null;
         } catch (GitAPIException e) {
             throw new GitHandlerException(e.getMessage(), e.getCause());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
     public List<Tag> getAllTags() throws GitHandlerException {
         List<Tag> tags = new ArrayList<>();
-        try (Git git = new Git(repository)) {
+        try {
             List<Ref> call = git.tagList().call();
             for (Ref ref : call) {
                 Tag tag = new Tag(ref.getName(), ref.getObjectId().getName());
@@ -259,17 +319,46 @@ public class GitHandler {
     }
 
 
-    public Optional<Commit> getTagCommit(String tag) throws IOException, GitHandlerException {
-        ObjectId objectId = repository.resolve(tag);
-        if (objectId == null) {
-            return Optional.empty();
+    public Optional<Commit> show(String tag) throws GitHandlerException {
+        try {
+            ObjectId objectId = repository.resolve(tag);
+            if (objectId == null) {
+                return Optional.empty();
+            }
+            RevWalk revWalk = new RevWalk(repository);
+            RevCommit revCommit = revWalk.parseCommit(objectId);
+            Commit commit = createCommit(revCommit, true);
+            revWalk.close();
+            return Optional.of(commit);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        RevWalk revWalk = new RevWalk(repository);
-        RevCommit revCommit = revWalk.parseCommit(objectId);
-        Commit commit = createCommit(revCommit, true);
-        return Optional.of(commit);
     }
 
+    @Override
+    public Set<String> getSnapshot(Commit commit) throws GitHandlerException {
+        return new HashSet<>();
+    }
+
+    @Override
+    public Set<String> getChangedFiles(Commit commit) throws GitHandlerException {
+        return new HashSet<>();
+    }
+
+    @Override
+    public long getNoChangedFiles(Commit commit) throws GitHandlerException {
+        return 0;
+    }
+
+    @Override
+    public Set<String> getSnapshot(Commit commit, String pattern) throws GitHandlerException {
+        return null;
+    }
+
+    @Override
+    public Set<String> getChangedFiles(Commit commit, String pattern) throws GitHandlerException {
+        return null;
+    }
 
     private Commit createCommit(RevCommit revCommit, boolean fastNoDiff) throws IOException, GitHandlerException {
         List<String> snapshot = GitHelper.getFiles(repository, revCommit);
@@ -305,6 +394,20 @@ public class GitHandler {
     }
 
 
+    public long getLoc(Commit commit, String file) throws IOException {
+        Ref ref = repository.findRef(commit.getName());
+        RevCommit revCommit = repository.parseCommit(ref.getObjectId());
+        TreeWalk treeWalk = new TreeWalk(repository);
+        treeWalk.reset(revCommit.getTree());
+        while (treeWalk.next()) {
+            String path = treeWalk.getPathString();
+            if (file.equals(path)) {
+                return countLinesOfObjectID(treeWalk.getObjectId(0));
+            }
+        }
+        return 0;
+    }
+
     /**
      * @param fileId
      * @return
@@ -335,9 +438,6 @@ public class GitHandler {
         long newLoc = countLinesOfObjectID(diffEntry.getNewId().toObjectId());
         long linesAdded = 0;
         long linesDeleted = 0;
-        DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
-        diffFormatter.setRepository(repository);
-        diffFormatter.setContext(0);
         for (Edit edit : diffFormatter.toFileHeader(diffEntry).toEditList()) {
             linesDeleted += edit.getEndA() - edit.getBeginA();
             linesAdded += edit.getEndB() - edit.getBeginB();
@@ -346,12 +446,8 @@ public class GitHandler {
                 oldPath,
                 newPath,
                 diffType,
-                oldId,
-                newId,
                 oldCommitId,
                 newCommitId,
-                oldLoc,
-                newLoc,
                 linesAdded,
                 linesDeleted
         );

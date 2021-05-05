@@ -13,16 +13,12 @@ public class DiffStat {
     private long locAdded;
     private long locDeleted;
 
-    public DiffStat(String oldPath, String newPath, DiffType diffType, String oldBlobId, String newBlobId, String oldCommitId, String newCommitId, long oldSize, long newSize, long locAdded, long locDeleted) {
+    public DiffStat(String oldPath, String newPath, DiffType diffType, String oldCommitId, String newCommitId, long locAdded, long locDeleted) {
         this.oldPath = oldPath;
         this.newPath = newPath;
         this.diffType = diffType;
-        this.oldBlobId = oldBlobId;
-        this.newBlobId = newBlobId;
         this.oldCommitId = oldCommitId;
         this.newCommitId = newCommitId;
-        this.oldSize = oldSize;
-        this.newSize = newSize;
         this.locAdded = locAdded;
         this.locDeleted = locDeleted;
     }
@@ -40,22 +36,6 @@ public class DiffStat {
         return diffType;
     }
 
-    public long getOldSize() {
-        return oldSize;
-    }
-
-    public long getNewSize() {
-        return newSize;
-    }
-
-    public String getOldBlobId() {
-        return oldBlobId;
-    }
-
-    public String getNewBlobId() {
-        return newBlobId;
-    }
-
     public String getOldCommitId() {
         return oldCommitId;
     }
@@ -65,18 +45,17 @@ public class DiffStat {
     }
 
     public long getSignedLocChanged() {
-        return newSize - oldSize;
+        return (locAdded - locDeleted);
     }
 
     public long getLocChanged() {
-        long loc = newSize - oldSize;
+        long loc = locAdded - locDeleted;
         if (loc >= 0) {
             return loc;
         } else {
             return -loc;
         }
     }
-
 
     public long getLocAdded() {
         return locAdded;
@@ -86,18 +65,18 @@ public class DiffStat {
         return locDeleted;
     }
 
+    public long getAddedLoc() { return locAdded - locDeleted;}
+
+    public long getChurn() {return locAdded + locDeleted;}
+
     @Override
     public String toString() {
         return "DiffStat{" +
                 "oldPath='" + oldPath + '\'' +
                 ", newPath='" + newPath + '\'' +
                 ", diffType=" + diffType +
-                ", oldBlobId='" + oldBlobId + '\'' +
-                ", newBlobId='" + newBlobId + '\'' +
                 ", oldCommitId='" + oldCommitId + '\'' +
                 ", newCommitId='" + newCommitId + '\'' +
-                ", oldSize=" + oldSize +
-                ", newSize=" + newSize +
                 ", locAdded=" + locAdded +
                 ", locDeleted=" + locDeleted +
                 '}';

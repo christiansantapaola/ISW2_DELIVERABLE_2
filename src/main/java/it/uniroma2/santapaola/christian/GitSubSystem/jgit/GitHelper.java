@@ -1,5 +1,6 @@
-package it.uniroma2.santapaola.christian.GitSubSystem;
+package it.uniroma2.santapaola.christian.GitSubSystem.jgit;
 
+import it.uniroma2.santapaola.christian.GitSubSystem.DiffType;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;

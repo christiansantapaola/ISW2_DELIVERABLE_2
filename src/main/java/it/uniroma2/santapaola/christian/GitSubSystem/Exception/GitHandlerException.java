@@ -8,4 +8,12 @@ public class GitHandlerException extends Exception {
     public GitHandlerException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public GitHandlerException() {
+
+    }
+
+    public GitHandlerException(String message) {
+        super(message);
+    }
 }

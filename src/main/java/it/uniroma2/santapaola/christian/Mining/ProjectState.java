@@ -4,7 +4,8 @@ import it.uniroma2.santapaola.christian.GitSubSystem.Commit;
 import it.uniroma2.santapaola.christian.GitSubSystem.DiffStat;
 import it.uniroma2.santapaola.christian.GitSubSystem.DiffType;
 import it.uniroma2.santapaola.christian.GitSubSystem.Exception.GitHandlerException;
-import it.uniroma2.santapaola.christian.GitSubSystem.GitHandler;
+import it.uniroma2.santapaola.christian.GitSubSystem.Git;
+import it.uniroma2.santapaola.christian.GitSubSystem.jgit.GitHandler;
 import it.uniroma2.santapaola.christian.JiraSubSystem.Release;
 import it.uniroma2.santapaola.christian.Mining.Exception.NoReleaseFoundException;
 
@@ -13,7 +14,7 @@ import java.util.*;
 
 public class ProjectState {
     private HashMap<String, ClassState> state;
-    private GitHandler git;
+    private Git git;
     private Timeline projectTimeline;
     private String projectName;
     private int version;
@@ -23,7 +24,7 @@ public class ProjectState {
     private double avgChangedFileSet;
     private long noReleaseToProcess;
 
-    public ProjectState(String projectName, GitHandler git, Timeline projectTimeline) throws NoReleaseFoundException, GitHandlerException, IOException {
+    public ProjectState(String projectName, Git git, Timeline projectTimeline) throws NoReleaseFoundException, GitHandlerException, IOException {
         state = new HashMap<String, ClassState>();
         this.projectName = projectName;
         this.git = git;
@@ -67,7 +68,7 @@ public class ProjectState {
             } else {
                 nextGitTag = Optional.empty();
             }
-            List<Commit> revisions = git.log(currGitTag, nextGitTag, false);
+            List<Commit> revisions = git.log(currGitTag, nextGitTag);
             for (int i = 0; i < revisions.size() - 1; i++) {
                 List<DiffStat> diffs = git.diff(revisions.get(i), revisions.get(i + 1));
                 for (DiffStat diffStat : diffs) {
@@ -77,9 +78,9 @@ public class ProjectState {
 
             noRevisions = 0;
             for (Commit revision : revisions) {
-                changedFileSet += revision.getModifiedFileSize();
-                maxChangedFileSet = Math.max(maxChangedFileSet, revision.getModifiedFileSize());
-                avgChangedFileSet = ((avgChangedFileSet * noRevisions) + ((double) revision.getModifiedFileSize())) / ((double) (noRevisions + 1));
+                changedFileSet += git.getNoChangedFiles(revision);
+                maxChangedFileSet = Math.max(maxChangedFileSet, changedFileSet);
+                avgChangedFileSet = ((avgChangedFileSet * noRevisions) + (0)) / ((double) (noRevisions + 1));
                 noRevisions++;
             }
 
@@ -108,14 +109,7 @@ public class ProjectState {
         classState.updateChurn(diffStat.getLocAdded(), diffStat.getLocDeleted());
         classState.addAuthor(author);
         classState.updateRevision();
-        classState.setLoc(diffStat.getNewSize());
-
-    }
-
-    private void resetClassState(String classPath) {
-        ClassState classState = state.get(classPath);
-        if (classState == null) return;
-        classState.resetAuthor();
+        classState.setLoc(classState.getLoc() + classState.getChurn());
     }
 
     public int getVersion() {

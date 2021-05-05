@@ -15,12 +15,12 @@ public class Main {
     public static void main(String[] args) {
         OutputDirectory outputDirectory = new OutputDirectory("output/", "repository/");
         ProjectData bookkeeper = new ProjectData("bookkeeper", "BOOKKEEPER", "https://issues.apache.org", "https://github.com/apache/bookkeeper");
-        ProjectData openjpa = new ProjectData("openjpa", "OPENJPA", "https://issues.apache.org", "https://github.com/apache/openjpa");
+        //ProjectData openjpa = new ProjectData("openjpa", "OPENJPA", "https://issues.apache.org", "https://github.com/apache/openjpa");
 
         try {
-            //doProjectAnalysis(bookkeeper, outputDirectory);
+            doProjectAnalysis(bookkeeper, outputDirectory);
             System.gc();
-            doProjectAnalysis(openjpa, outputDirectory);
+            //doProjectAnalysis(openjpa, outputDirectory);
         } catch (IOException e) {
             e.printStackTrace();
             return;
@@ -31,11 +31,11 @@ public class Main {
     }
 
     private static RepositoryMiner buildRepositoryMiner(ProjectData projectData, OutputDirectory outputDirectory) throws IOException, GitHandlerException {
-        if (outputDirectory.ExistsRepositoryFile(projectData.getGitPath())) {
-            return new RepositoryMiner(outputDirectory.getRepository() + projectData.getGitPath(), projectData.getJiraProjectName(), projectData.getJiraUrl());
-        } else {
-            return new RepositoryMiner(projectData.getGitUrl(), outputDirectory.getRepository() + projectData.getProjectName(), projectData.getJiraProjectName(), projectData.getJiraUrl());
-        }
+        return new RepositoryMiner(
+                outputDirectory.getRepository() + projectData.getProjectName(),
+                projectData.getGitUrl(),
+                projectData.getJiraProjectName(),
+                projectData.getJiraUrl());
     }
 
     private static String getBuggy(boolean buggy) {
@@ -85,7 +85,9 @@ public class Main {
                             getBuggy(classState.isBuggy())
                     };
                     csvWriter.writeLine(row);
+                    System.gc();
                 }
+                System.gc();
             }
             long t2 = System.nanoTime();
             System.out.println("iteration: " + i);

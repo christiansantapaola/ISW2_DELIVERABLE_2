@@ -10,11 +10,12 @@ class RepositoryMinerTest {
 
     @BeforeAll
     public static void configure() throws Exception {
+        String gitUrl = "https://github.com/apache/bookkeeper";
         String pathname = "repository/bookkeeper/.git/";
         String jiraProjectManager = "BOOKKEEPER";
         String jiraUrl = "https://issues.apache.org";
         String file = "README.md";
-        RepositoryMinerTest.repositoryMiner = new RepositoryMiner(pathname, jiraProjectManager, jiraUrl);
+        RepositoryMinerTest.repositoryMiner = new RepositoryMiner(gitUrl, pathname, jiraProjectManager, jiraUrl);
         RepositoryMinerTest.file = file;
     }
 

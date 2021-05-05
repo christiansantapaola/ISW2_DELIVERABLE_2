@@ -4,16 +4,20 @@ import it.uniroma2.santapaola.christian.GitSubSystem.Commit;
 import it.uniroma2.santapaola.christian.JiraSubSystem.Ticket;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 
 public class Bug {
 
     private Commit commit;
     private Ticket ticket;
+    private Set<String> affectedFile;
 
-    public Bug(Commit commit, Ticket ticket) {
+    public Bug(Commit commit, Ticket ticket, Set<String> affectedFile) {
         this.ticket = ticket;
         this.commit = commit;
+        this.affectedFile = affectedFile;
     }
 
 
@@ -30,7 +34,7 @@ public class Bug {
     }
 
     public boolean isFileAffected(String path) {
-        return commit.wasFileModifiedInThisCommit(path);
+        return affectedFile.contains(path);
     }
 
     @Override
