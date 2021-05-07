@@ -63,7 +63,9 @@ public class GitHandler implements Git {
             pb.directory(repositoryRoot);
             Process process = pb.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            return parseLog(reader);
+            List<Commit> commits = parseLog(reader);
+            reader.close();
+            return commits;
         } catch (IOException e) {
             throw new GitHandlerException(e.getMessage(), e.getCause());
         }
@@ -78,7 +80,9 @@ public class GitHandler implements Git {
             pb.directory(repositoryRoot);
             Process process = pb.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            return parseLog(reader);
+            List<Commit> commits = parseLog(reader);
+            reader.close();
+            return commits;
         } catch (IOException e) {
             throw new GitHandlerException(e.getMessage(), e.getCause());
         }
@@ -95,20 +99,26 @@ public class GitHandler implements Git {
                 pb.directory(repositoryRoot);
                 Process process = pb.start();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                return parseLog(reader);
+                List<Commit> commits = parseLog(reader);
+                reader.close();
+                return commits;
             }
             if (tagA.isEmpty() && tagB.isPresent()) {
                 ProcessBuilder pb = new ProcessBuilder("git", "log", "--date=iso8601", logFormat, tagB.get());
                 pb.directory(repositoryRoot);
                 Process process = pb.start();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                return parseLog(reader);
+                List<Commit> commits = parseLog(reader);
+                reader.close();
+                return commits;
             } else {
                 ProcessBuilder pb = new ProcessBuilder("git", "log", "--date=iso8601", logFormat, tagA.get() + "..." + tagB.get());
                 pb.directory(repositoryRoot);
                 Process process = pb.start();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                return parseLog(reader);
+                List<Commit> commits = parseLog(reader);
+                reader.close();
+                return commits;
             }
         } catch (IOException e) {
             throw new GitHandlerException(e.getMessage(), e.getCause());
@@ -122,7 +132,9 @@ public class GitHandler implements Git {
             pb.directory(repositoryRoot);
             Process process = pb.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            return parseLog(reader);
+            List<Commit> commits = parseLog(reader);
+            reader.close();
+            return commits;
         } catch (IOException e) {
             throw new GitHandlerException(e.getMessage(), e.getCause());
         }
@@ -176,7 +188,9 @@ public class GitHandler implements Git {
             pb.directory(repositoryRoot);
             Process process = pb.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            return parseDiff(reader, c1, c2);
+            List<DiffStat> diffStats = parseDiff(reader, c1, c2);
+            reader.close();
+            return diffStats;
         } catch (IOException e) {
             throw new GitHandlerException(e.getMessage(), e.getCause());
         }
@@ -203,7 +217,9 @@ public class GitHandler implements Git {
             pb.directory(repositoryRoot);
             Process process = pb.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            return parseTag(reader);
+            List<Tag> tags = parseTag(reader);
+            reader.close();
+            return tags;
         } catch (IOException e) {
             throw new GitHandlerException(e.getMessage(), e.getCause());
         }
@@ -213,11 +229,12 @@ public class GitHandler implements Git {
     @Override
     public Optional<Commit> show(String id) throws GitHandlerException {
         try {
-            ProcessBuilder pb = new ProcessBuilder("git", "log", "-1", "--date=iso8601", logFormat);
+            ProcessBuilder pb = new ProcessBuilder("git", "log", "-1", "--date=iso8601", logFormat, id);
             pb.directory(repositoryRoot);
             Process process = pb.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             List<Commit> commits = parseLog(reader);
+            reader.close();
             if (commits.size() < 1) {
                 return Optional.empty();
             } else {
@@ -231,7 +248,7 @@ public class GitHandler implements Git {
     @Override
     public Set<String> getSnapshot(Commit commit) throws GitHandlerException {
         try {
-            return getSnapshot(commit.getName(), "*");
+            return getSnapshot(commit.getName(), ".*");
         } catch (IOException | InterruptedException e) {
             throw new GitHandlerException(e.getMessage(), e.getCause());
         }
@@ -240,7 +257,7 @@ public class GitHandler implements Git {
     @Override
     public Set<String> getChangedFiles(Commit commit) throws GitHandlerException{
         try {
-            return getChangedFiles(commit.getName(), "*");
+            return getChangedFiles(commit.getName(), ".*");
         } catch (IOException | InterruptedException e) {
             throw new GitHandlerException(e.getMessage(), e.getCause());
         }
@@ -262,16 +279,18 @@ public class GitHandler implements Git {
                 snapshot.add(line);
             }
         }
+        reader.close();
         return snapshot;
     }
 
     private HashSet<String> getChangedFiles(String id, String pattern) throws IOException, InterruptedException {
-        ProcessBuilder pb = new ProcessBuilder("git", "log", "-1", "--name-only", "--oneline", id);
+        ProcessBuilder pb = new ProcessBuilder("git", "diff", "--name-only", id + "~", id);
         pb.directory(repositoryRoot);
         Process process = pb.start();
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         HashSet<String> result = new HashSet<>();
-        String line = reader.readLine();
+        // skip first line
+        String line;
         Pattern filter = Pattern.compile(pattern);
         while ((line = reader.readLine()) != null) {
             Matcher matcher = filter.matcher(line);
@@ -279,6 +298,7 @@ public class GitHandler implements Git {
                 result.add(line);
             }
         }
+        reader.close();
         return result;
     }
 
@@ -293,6 +313,7 @@ public class GitHandler implements Git {
             if (commitLine == null) throw new GitHandlerException();
             String statLine = reader.readLine();
             if (statLine == null) return 0;
+            reader.close();
             Pattern pattern = Pattern.compile("\\s+(\\d+).*");
             Matcher matcher = pattern.matcher(statLine);
             if (matcher.matches()) {

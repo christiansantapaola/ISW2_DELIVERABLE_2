@@ -14,28 +14,25 @@ public class Main {
 
     public static void main(String[] args) {
         OutputDirectory outputDirectory = new OutputDirectory("output/", "repository/");
-        ProjectData bookkeeper = new ProjectData("bookkeeper", "BOOKKEEPER", "https://issues.apache.org", "https://github.com/apache/bookkeeper");
-        //ProjectData openjpa = new ProjectData("openjpa", "OPENJPA", "https://issues.apache.org", "https://github.com/apache/openjpa");
+        ProjectData bookkeeper = new ProjectData("bookkeeper", "BOOKKEEPER", "https://issues.apache.org", "https://github.com/apache/bookkeeper", "^(refs\\/tags\\/)(.*)(?<name>\\d+.\\d+.\\d+)$");
+        ProjectData openjpa = new ProjectData("openjpa", "OPENJPA", "https://issues.apache.org", "https://github.com/apache/openjpa", "^(refs\\/tags\\/)(?<name>\\d+.\\d+.\\d+)$");
 
         try {
             doProjectAnalysis(bookkeeper, outputDirectory);
             System.gc();
-            //doProjectAnalysis(openjpa, outputDirectory);
-        } catch (IOException e) {
+            doProjectAnalysis(openjpa, outputDirectory);
+        } catch (Exception e) {
             e.printStackTrace();
-            return;
-        } catch (GitHandlerException | NoReleaseFoundException e) {
-            e.printStackTrace();
-            return;
         }
     }
 
-    private static RepositoryMiner buildRepositoryMiner(ProjectData projectData, OutputDirectory outputDirectory) throws IOException, GitHandlerException {
+    public static RepositoryMiner buildRepositoryMiner(ProjectData projectData, OutputDirectory outputDirectory) throws IOException, GitHandlerException {
         return new RepositoryMiner(
                 outputDirectory.getRepository() + projectData.getProjectName(),
                 projectData.getGitUrl(),
                 projectData.getJiraProjectName(),
-                projectData.getJiraUrl());
+                projectData.getJiraUrl(),
+                projectData.getTagPattern());
     }
 
     private static String getBuggy(boolean buggy) {
@@ -60,6 +57,7 @@ public class Main {
         int i=0;
         while (projectState.next()) {
             long t1 = System.nanoTime();
+            long countBuggy = 0;
             for (String file : projectState.keySet()) {
                 ClassState classState = projectState.getState(file);
                 if (projectState.getVersion() <= projectState.getNoReleaseToProcess() || classState.isBuggy()) {
@@ -77,22 +75,24 @@ public class Main {
                             Long.toString(classState.getChurn()),
                             Long.toString(classState.getMaxChurn()),
                             Double.toString(classState.getAvgChurn()),
-                            Long.toString(projectState.getChangedFileSet()),
-                            Long.toString(projectState.getMaxChangedFileSet()),
-                            Double.toString(projectState.getAvgChangedFileSet()),
+                            Long.toString(classState.getChangedFileSet()),
+                            Long.toString(classState.getMaxChangedFileSet()),
+                            Double.toString(classState .getAvgChangedFileSet()),
                             Long.toString(classState.getAge()),
                             Double.toString(classState.getWeightedAge()),
                             getBuggy(classState.isBuggy())
                     };
+                    if (classState.isBuggy()) {
+                      countBuggy++;
+                    }
                     csvWriter.writeLine(row);
-                    System.gc();
                 }
-                System.gc();
             }
             long t2 = System.nanoTime();
-            System.out.println("iteration: " + i);
-            System.out.println("time: " + ((t2 - t1)) + "");
-            System.out.flush();
+            //System.out.println("iteration: " + i);
+            //System.out.println(countBuggy + " / " + projectState.keySet().size());
+            //System.out.println("time: " + ((t2 - t1)) + "");
+            //System.out.flush();
             i++;
             csvWriter.flush();
         }

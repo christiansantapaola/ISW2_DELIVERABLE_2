@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 public class ReleaseTimeline implements Iterable<Release> {
     private SortedSet<Release> releases;
@@ -63,6 +64,14 @@ public class ReleaseTimeline implements Iterable<Release> {
         } else {
             return 0;
         }
+    }
 
+    public Optional<Release> get(String releaseName) {
+        for (Release release : releases) {
+            if (release.getName().equals(releaseName)) {
+                return Optional.of(release);
+            }
+        }
+        return Optional.empty();
     }
 }

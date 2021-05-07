@@ -12,7 +12,7 @@ class JiraHandlerTest {
 
         @BeforeAll
         public static void configure() {
-            jiraHandler = new JiraHandler("BOOKKEEPER", "https://issues.apache.org");
+            jiraHandler = new JiraHandler("OPENJPA", "https://issues.apache.org");
         }
 
         @org.junit.jupiter.api.Test

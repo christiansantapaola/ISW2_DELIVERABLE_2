@@ -1,16 +1,16 @@
 package it.uniroma2.santapaola.christian.Mining;
 
-import it.uniroma2.santapaola.christian.GitSubSystem.Commit;
-import it.uniroma2.santapaola.christian.GitSubSystem.DiffStat;
-import it.uniroma2.santapaola.christian.GitSubSystem.DiffType;
+import it.uniroma2.santapaola.christian.GitSubSystem.*;
 import it.uniroma2.santapaola.christian.GitSubSystem.Exception.GitHandlerException;
-import it.uniroma2.santapaola.christian.GitSubSystem.Git;
 import it.uniroma2.santapaola.christian.GitSubSystem.jgit.GitHandler;
 import it.uniroma2.santapaola.christian.JiraSubSystem.Release;
 import it.uniroma2.santapaola.christian.Mining.Exception.NoReleaseFoundException;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
+import java.util.regex.Pattern;
 
 public class ProjectState {
     private HashMap<String, ClassState> state;
@@ -23,8 +23,11 @@ public class ProjectState {
     private long maxChangedFileSet;
     private double avgChangedFileSet;
     private long noReleaseToProcess;
+    private Version curr;
+    private Optional<Version> next;
+    private static Pattern isJavaClass = Pattern.compile("^.*\\.java$");
 
-    public ProjectState(String projectName, Git git, Timeline projectTimeline) throws NoReleaseFoundException, GitHandlerException, IOException {
+    public ProjectState(String projectName, Git git, Timeline projectTimeline) throws GitHandlerException {
         state = new HashMap<String, ClassState>();
         this.projectName = projectName;
         this.git = git;
@@ -34,7 +37,20 @@ public class ProjectState {
         this.changedFileSet = 0;
         this.maxChangedFileSet = 0;
         this.avgChangedFileSet = 0;
-        noReleaseToProcess = projectTimeline.getNoRelease() / 2;
+        noReleaseToProcess = projectTimeline.getTimeline().getNoVersion() / 2;
+        curr = projectTimeline.getTimeline().getFirst();
+        next = projectTimeline.getTimeline().getNext(curr);
+        List<DiffStat> diffs = git.diff(curr.getTag().getId(), next.get().getTag().getId());
+        for (DiffStat diff : diffs) {
+            if (!isJavaClass(diff.getOldPath())) continue;
+            updateClassState(diff, "", 0);
+        }
+        curr = next.get();
+        next = projectTimeline.getTimeline().getNext(curr);
+    }
+
+    public static boolean isJavaClass(String path) {
+        return isJavaClass.matcher(path).matches();
     }
 
     public Set<String> keySet() {
@@ -45,56 +61,56 @@ public class ProjectState {
         return state.get(path);
     }
 
-    public boolean next() throws GitHandlerException, IOException {
-            for (String file : state.keySet()) {
-                state.get(file).nextVersion();
-            }
-            changedFileSet = 0;
-            maxChangedFileSet = 0;
-            avgChangedFileSet = 0;
-            noRevisions = 0;
-            Optional<Release> curr = projectTimeline.getRelease(version);
-            Optional<Release> next = projectTimeline.getRelease(version + 1);
-            if (next.isEmpty()) return false;
-            Optional<String> currGitTag;
-            if (curr.isPresent()) {
-                currGitTag = MinerHelper.getTagFromReleaseName(git, curr.get().getName());
-            } else {
-                currGitTag = Optional.empty();
-            }
-            Optional<String> nextGitTag;
-            if (next.isPresent()) {
-                nextGitTag = MinerHelper.getTagFromReleaseName(git, next.get().getName());
-            } else {
-                nextGitTag = Optional.empty();
-            }
-            List<Commit> revisions = git.log(currGitTag, nextGitTag);
-            for (int i = 0; i < revisions.size() - 1; i++) {
-                List<DiffStat> diffs = git.diff(revisions.get(i), revisions.get(i + 1));
-                for (DiffStat diffStat : diffs) {
-                    updateClassState(diffStat, revisions.get(i + 1).getAuthor());
-                }
-            }
-
-            noRevisions = 0;
-            for (Commit revision : revisions) {
-                changedFileSet += git.getNoChangedFiles(revision);
-                maxChangedFileSet = Math.max(maxChangedFileSet, changedFileSet);
-                avgChangedFileSet = ((avgChangedFileSet * noRevisions) + (0)) / ((double) (noRevisions + 1));
-                noRevisions++;
-            }
-
-            for (String file : state.keySet()) {
-                boolean buggy = projectTimeline.isBuggy(file, next.get());
-                long noFix = projectTimeline.getNoBugFixed(file, curr, next);
-                state.get(file).setBuggy(buggy);
-                state.get(file).setNoFix(noFix);
-            }
-            version++;
-            return true;
+    public void printTag() {
+        Optional<Version> curr = Optional.ofNullable(projectTimeline.getTimeline().getFirst());
+        while (curr.isPresent()) {
+            System.out.println(curr.get().getTag().getName());
+            curr = projectTimeline.getTimeline().getNext(curr.get());
+        }
     }
 
-    private void updateClassState(DiffStat diffStat, String author) {
+    public boolean next() throws GitHandlerException {
+        if (next.isEmpty()) return false;
+        if (next.get() == projectTimeline.getTimeline().getLast()) return false;
+        resetState();
+        version++;
+        List<Commit> commits = git.log(Optional.of(curr.getTag().getId()), Optional.of(next.get().getTag().getId()));
+        noRevisions = commits.size();
+        commits.sort(Commit::compareTo);
+        System.out.println("version: " + version + ", " + "noRevision: " + noRevisions);
+        System.out.println("current Version: " + curr.getTag().getName() + ", " + curr.getRelease().getName() + ", " + curr.getRelease().getReleaseDate());
+        System.out.println("next Version: " + next.get().getTag().getName() + ", " + next.get().getRelease().getName() + ", " + next.get().getRelease().getReleaseDate());
+        for (int i = 0; i < commits.size() - 1; i++) {
+            List<DiffStat> diffs = git.diff(commits.get(i), commits.get(i+1));
+            for (DiffStat diff : diffs) {
+                if (!isJavaClass(diff.getOldPath())) continue;
+                updateClassState(diff, commits.get(i+1).getAuthor(), diffs.stream().filter(df -> isJavaClass(df.getOldPath())).count());
+            }
+        }
+        Set<String> buggySet = projectTimeline.getBuggyClass(next.get());
+        System.out.println("buggy ratio: " +  buggySet.size() + " / " + state.keySet().size());
+        for (String file : state.keySet()) {
+            boolean buggy = buggySet.contains(file);
+            long noFix = projectTimeline.getNoBugFixed(file, curr, next.get());
+            state.get(file).setBuggy(buggy);
+            state.get(file).setNoFix(noFix);
+        }
+        updateLoc(commits.get(commits.size() - 1));
+        clean();
+        curr = next.get();
+        next = projectTimeline.getTimeline().getNext(curr);
+        // skip bad version.
+        while (next.isPresent()) {
+            if (next.get().getRelease().getName().compareTo(curr.getRelease().getName()) < 0) {
+                next = projectTimeline.getTimeline().getNext(next.get());
+            } else {
+                break;
+            }
+        }
+        return true;
+    }
+
+    private void updateClassState(DiffStat diffStat, String author, long noChangedFile) {
         ClassState classState = state.get(diffStat.getOldPath());
         if (classState == null) {
             classState = new ClassState(projectName, diffStat.getNewPath());
@@ -106,10 +122,44 @@ public class ProjectState {
             return;
         }
         classState.updateLoc(diffStat.getLocAdded(), diffStat.getLocDeleted());
-        classState.updateChurn(diffStat.getLocAdded(), diffStat.getLocDeleted());
+        classState.updateChgFileSet(noChangedFile);
         classState.addAuthor(author);
         classState.updateRevision();
-        classState.setLoc(classState.getLoc() + classState.getChurn());
+    }
+
+    public void resetState() {
+        for (String file : state.keySet()) {
+            ClassState classState = state.get(file);
+            classState.reset();
+        }
+    }
+
+    public void updateLoc(Commit commit) throws GitHandlerException {
+        List<DiffStat> diffs = git.diff(GitConstants.EMPTY_TREE_ID, commit.getName());
+        long skipped = 0;
+        for (DiffStat diff : diffs) {
+            ClassState classState = state.get(diff.getNewPath());
+            if (classState == null) {
+                skipped++;
+                continue;
+            }
+            classState.setLoc(diff.getAddedLoc());
+        }
+    }
+
+    void clean() {
+        List<String> toDelete = new ArrayList<>();
+        long noClean = 0;
+        for (String key : state.keySet()) {
+            if (state.get(key).getLoc() <= 0) {
+                noClean++;
+                toDelete.add(key);
+            }
+        }
+        for (String key : toDelete) {
+            state.remove(key);
+        }
+
     }
 
     public int getVersion() {

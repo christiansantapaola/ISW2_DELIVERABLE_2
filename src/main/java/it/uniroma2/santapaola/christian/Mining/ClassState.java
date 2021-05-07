@@ -22,6 +22,9 @@ public class ClassState {
     private long churn;
     private long maxChurn;
     private double avgChurn;
+    private long changedFileSet;
+    private long maxChangedFileSet;
+    private double avgChangedFileSet;
     private long age;
     private boolean buggy;
 
@@ -93,20 +96,23 @@ public class ClassState {
     }
 
     public void updateLoc(long addedLoc, long deletedLoc) {
-        this.touchedLoc = addedLoc + deletedLoc;
+        long touchedLoc = addedLoc + deletedLoc;
+        long churn = addedLoc - deletedLoc;
+        this.touchedLoc += touchedLoc;
         this.addedLoc += addedLoc;
         maxAddedLoc = Math.max(maxAddedLoc, addedLoc);
         avgAddedLoc = ((avgAddedLoc * noRevision) + addedLoc) / (noRevision + 1);
+        this.churn += churn;
+        maxChurn = Math.max(maxChurn, churn);
+        avgChurn = ((avgChurn * noRevision) + churn) / (noRevision + 1);
         addedLocHistory.add(this.addedLoc);
         ageHistory.add(age * this.addedLoc);
-
     }
 
-    public void updateChurn(long addedLoc, long deletedLoc) {
-        long tmpChurn = addedLoc - deletedLoc;
-        churn += tmpChurn;
-        maxChurn = Math.max(maxChurn, churn);
-        avgChurn = ((avgChurn * noRevision) + tmpChurn) / (noRevision + 1);
+    public void updateChgFileSet(long noChangedFile) {
+        changedFileSet += noChangedFile;
+        maxChangedFileSet = Math.max(maxChangedFileSet, noChangedFile);
+        avgChangedFileSet = ((avgChangedFileSet * noRevision) + noChangedFile) / (noRevision + 1);
     }
 
     public void setBuggy(boolean buggy) {
@@ -125,7 +131,7 @@ public class ClassState {
         authors.clear();
     }
 
-    public void nextVersion() {
+    public void reset() {
         noRevision = 0;
         touchedLoc = 0;
         addedLoc = 0;
@@ -137,6 +143,9 @@ public class ClassState {
         resetAuthor();
         buggy = false;
         noFix = 0;
+        changedFileSet = 0;
+        maxChangedFileSet = 0;
+        avgChangedFileSet = 0;
         age++;
         version++;
     }
@@ -173,5 +182,41 @@ public class ClassState {
 
     public long getTouchedLoc() {
         return touchedLoc;
+    }
+
+    @Override
+    public String toString() {
+        return "ClassState{" +
+                "projectName='" + projectName + '\'' +
+                ", className='" + className + '\'' +
+                ", authors=" + authors +
+                ", version=" + version +
+                ", addedLocHistory=" + addedLocHistory +
+                ", ageHistory=" + ageHistory +
+                ", loc=" + loc +
+                ", noRevision=" + noRevision +
+                ", noFix=" + noFix +
+                ", touchedLoc=" + touchedLoc +
+                ", addedLoc=" + addedLoc +
+                ", maxAddedLoc=" + maxAddedLoc +
+                ", avgAddedLoc=" + avgAddedLoc +
+                ", churn=" + churn +
+                ", maxChurn=" + maxChurn +
+                ", avgChurn=" + avgChurn +
+                ", age=" + age +
+                ", buggy=" + buggy +
+                '}';
+    }
+
+    public long getChangedFileSet() {
+        return changedFileSet;
+    }
+
+    public long getMaxChangedFileSet() {
+        return maxChangedFileSet;
+    }
+
+    public double getAvgChangedFileSet() {
+        return avgChangedFileSet;
     }
 }

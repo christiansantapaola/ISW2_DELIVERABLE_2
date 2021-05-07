@@ -6,23 +6,23 @@ import it.uniroma2.santapaola.christian.Proportion.Proportion;
 
 public class BugLifeCycle {
     private Bug bug;
-    private Release IV;
-    private Release OV;
-    private Release FV;
-    private int AV;
+    private Version IV;
+    private Version OV;
+    private Version FV;
+    private long AV;
 
-    public BugLifeCycle(Bug bug, ReleaseTimeline timeline, Proportion proportion) {
+    public BugLifeCycle(Bug bug, VersionTimeline timeline, Proportion proportion) {
         this.bug = bug;
-        this.OV = timeline.getNextRelease(bug.getTicketCreationDate()).orElseThrow();
-        this.FV = timeline.getNextRelease(bug.getFixCommitDate()).orElseThrow();
+        this.OV = timeline.getNext(bug.getTicketCreationDate()).orElseThrow();
+        this.FV = timeline.getNext(bug.getFixCommitDate()).orElseThrow();
         proportion.computeProportion(OV);
-        int iv = proportion.computeIV(FV.getNoRelease(), FV.getNoRelease());
-        this.IV = timeline.get(iv).orElseThrow();
-        this.AV = FV.getReleaseDiff(IV);
+        int iv = proportion.computeIV((int)FV.getNoVersion(), (int)OV.getNoVersion());
+        this.IV = timeline.get(iv);
+        this.AV = FV.getVersionDiff(IV);
     }
 
-    public boolean isBuggy(String className, Release release) {
-        if (release.compareTo(FV) > 0 || release.compareTo(IV) < 0) {
+    public boolean isBuggy(String className, Version version) {
+        if (version.compareTo(FV) > 0 || version.compareTo(IV) < 0) {
             return false;
         }
         return bug.isFileAffected(className);
@@ -33,28 +33,27 @@ public class BugLifeCycle {
     }
 
     public boolean isBefore(Release release) {
-        return release.getReleaseDate().compareTo(FV.getReleaseDate()) > 0;
+        return release.getReleaseDate().compareTo(FV.getRelease().getReleaseDate()) > 0;
     }
 
     public boolean isAfter(Release release) {
-        return release.getReleaseDate().compareTo(IV.getReleaseDate()) < 0;
+        return release.getReleaseDate().compareTo(IV.getRelease().getReleaseDate()) < 0;
     }
 
 
-
-    public Release getIV() {
+    public Version getIV() {
         return IV;
     }
 
-    public Release getOV() {
+    public Version getOV() {
         return OV;
     }
 
-    public Release getFV() {
+    public Version getFV() {
         return FV;
     }
 
-    public int getAV() {
+    public long getAV() {
         return AV;
     }
 }

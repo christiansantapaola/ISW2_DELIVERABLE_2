@@ -30,7 +30,7 @@ class GitTest {
         git = gitFactory.build();
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void gitGrepTest() throws Exception {
         List<Commit> commits = git.grep("BOOKKEEPER-145");
         for (Commit commit : commits) {
@@ -42,6 +42,7 @@ class GitTest {
     void gitLogTest() throws IOException, GitHandlerException {
         List<Commit> commits = git.log("bookkeeper-server/src/main/java/org/apache/bookkeeper/zookeeper/ZooWorker.java");
         System.out.println(commits.size());
+        commits.sort(Commit::compareTo);
         for (Commit commit : commits) {
             System.out.println(commit);
         }
@@ -106,14 +107,18 @@ class GitTest {
 
     @Test
     void gitGetChangedFile() throws Exception{
-        Commit commit = git.show("HEAD").get();
+        Commit commit = git.show("release-4.5.0").get();
         long noChangedFile = git.getNoChangedFiles(commit);
         System.out.println(noChangedFile + " files changed");
         Set<String> chFiles = git.getChangedFiles(commit);
         for (String file : chFiles) {
             System.out.println(file);
         }
-        Assertions.assertEquals(noChangedFile, (long) chFiles.size());
+        System.out.println("<------------------->");
+        chFiles = git.getChangedFiles(commit, ".*\\.java");
+        for (String file : chFiles) {
+            System.out.println(file);
+        }
     }
 
 

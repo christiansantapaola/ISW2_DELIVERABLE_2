@@ -45,4 +45,7 @@ public class Bug {
                 '}';
     }
 
+    public Set<String> getAffectedFile() {
+        return affectedFile;
+    }
 }

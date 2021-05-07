@@ -10,6 +10,8 @@ import it.uniroma2.santapaola.christian.JiraSubSystem.Ticket;
 import it.uniroma2.santapaola.christian.Mining.Exception.NoReleaseFoundException;
 import it.uniroma2.santapaola.christian.Proportion.IncrementProportion;
 import it.uniroma2.santapaola.christian.Proportion.Proportion;
+import it.uniroma2.santapaola.christian.Proportion.ProportionBuilder;
+import it.uniroma2.santapaola.christian.Proportion.SimpleProportion;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +41,7 @@ public class RepositoryMiner {
      * @param jiraProjectName Project Name ID on JIRA issue.apache
      * @throws IOException
      */
-    public RepositoryMiner(String gitPath, String gitUrl, String jiraProjectName, String jiraUrl) throws IOException, GitHandlerException {
+    public RepositoryMiner(String gitPath, String gitUrl, String jiraProjectName, String jiraUrl, String tagPattern) throws IOException, GitHandlerException {
         GitFactory gitFactory = new GitFactory(gitUrl, gitPath);
         gitFactory.setGitProcess();
         git = gitFactory.build();
@@ -47,9 +49,8 @@ public class RepositoryMiner {
         releases = jira.getReleases();
         tickets = jira.getBugTicket();
         bugs = getBugs();
-        proportion = new IncrementProportion(bugs, releases.getLast().get());
-        proportion.computeProportion();
-        timeline = new Timeline(bugs, releases, proportion);
+        proportion = new SimpleProportion();
+        timeline = new Timeline(bugs, releases, git, ProportionBuilder.getIncrementProportion(), tagPattern);
     }
 
     /**
@@ -73,7 +74,7 @@ public class RepositoryMiner {
     }
 
     public Bug createBug(Ticket ticket, Commit commit) throws GitHandlerException {
-        Set<String> snapshot = git.getChangedFiles(commit, ".java");
+        Set<String> snapshot = git.getChangedFiles(commit, ".*\\.java");
         return new Bug(commit, ticket, snapshot);
     }
 
