@@ -1,8 +1,6 @@
 package it.uniroma2.santapaola.christian.GitSubSystem;
 
 
-import org.eclipse.jgit.revwalk.RevCommit;
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
@@ -13,19 +11,6 @@ public class Commit implements Comparable<Commit>{
     private String committer;
     private LocalDate committerCommitTime;
     private LocalDate authorCommitTime;
-
-
-    public Commit(RevCommit commit, List<String> repositorySnapshot, List<DiffStat> modifiedFiles) {
-        name = commit.getName();
-        author = commit.getAuthorIdent().toString();
-        committer = commit.getCommitterIdent().toString();
-        committerCommitTime = Instant.ofEpochMilli(commit.getCommitTime() * 1000L)
-                .atZone(commit.getCommitterIdent().getTimeZone().toZoneId())
-                .toLocalDate();
-        authorCommitTime = Instant.ofEpochMilli(commit.getCommitTime() * 1000L)
-                .atZone(commit.getAuthorIdent().getTimeZone().toZoneId())
-                .toLocalDate();
-    }
 
     public Commit(String name, String author, LocalDate authorCommitTime,
                   String committer, LocalDate committerCommitTime,

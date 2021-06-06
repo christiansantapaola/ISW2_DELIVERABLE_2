@@ -12,6 +12,9 @@
     <properties>
         <maven.compiler.source>14</maven.compiler.source>
         <maven.compiler.target>14</maven.compiler.target>
+        <sonar.projectKey>qrowsxi_ISW2_DELIVERABLE_2</sonar.projectKey>
+        <sonar.organization>qrowsxi</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
     <dependencies>
@@ -19,11 +22,6 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20210307</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jgit</groupId>
-            <artifactId>org.eclipse.jgit</artifactId>
-            <version>5.11.0.202103091610-r</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
