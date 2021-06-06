@@ -1,7 +1,6 @@
 package it.uniroma2.santapaola.christian.Mining;
 
 import it.uniroma2.santapaola.christian.JiraSubSystem.Release;
-import it.uniroma2.santapaola.christian.JiraSubSystem.ReleaseTimeline;
 import it.uniroma2.santapaola.christian.Proportion.Proportion;
 
 public class BugLifeCycle {

@@ -1,6 +1,5 @@
 package it.uniroma2.santapaola.christian.Proportion;
 
-import it.uniroma2.santapaola.christian.JiraSubSystem.Release;
 import it.uniroma2.santapaola.christian.Mining.Bug;
 import it.uniroma2.santapaola.christian.Mining.Version;
 

@@ -3,7 +3,6 @@ package it.uniroma2.santapaola.christian.Mining;
 import it.uniroma2.santapaola.christian.GitSubSystem.Commit;
 import it.uniroma2.santapaola.christian.GitSubSystem.Exception.GitHandlerException;
 import it.uniroma2.santapaola.christian.GitSubSystem.Git;
-import it.uniroma2.santapaola.christian.GitSubSystem.jgit.GitHandler;
 import it.uniroma2.santapaola.christian.GitSubSystem.Tag;
 import it.uniroma2.santapaola.christian.JiraSubSystem.Release;
 

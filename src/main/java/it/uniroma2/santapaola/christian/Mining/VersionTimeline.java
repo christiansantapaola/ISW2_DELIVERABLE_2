@@ -8,9 +8,10 @@ import it.uniroma2.santapaola.christian.JiraSubSystem.Release;
 import it.uniroma2.santapaola.christian.JiraSubSystem.ReleaseTimeline;
 
 import java.time.LocalDate;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class VersionTimeline {
     private SortedSet<Version> timeline;

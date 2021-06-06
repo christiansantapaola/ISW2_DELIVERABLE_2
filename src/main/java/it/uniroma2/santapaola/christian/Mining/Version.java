@@ -4,10 +4,6 @@ import it.uniroma2.santapaola.christian.GitSubSystem.GitConstants;
 import it.uniroma2.santapaola.christian.GitSubSystem.Tag;
 import it.uniroma2.santapaola.christian.JiraSubSystem.Release;
 
-import java.awt.font.OpenType;
-import java.time.LocalDate;
-import java.util.Optional;
-
 public class Version implements Comparable<Version> {
     private Release release;
     private Tag tag;

@@ -2,14 +2,8 @@ package it.uniroma2.santapaola.christian.Mining;
 
 import it.uniroma2.santapaola.christian.GitSubSystem.*;
 import it.uniroma2.santapaola.christian.GitSubSystem.Exception.GitHandlerException;
-import it.uniroma2.santapaola.christian.GitSubSystem.jgit.GitHandler;
-import it.uniroma2.santapaola.christian.JiraSubSystem.Release;
-import it.uniroma2.santapaola.christian.Mining.Exception.NoReleaseFoundException;
 
-import java.awt.*;
-import java.io.IOException;
 import java.util.*;
-import java.util.List;
 import java.util.regex.Pattern;
 
 public class ProjectState {

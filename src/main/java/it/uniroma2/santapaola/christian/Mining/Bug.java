@@ -4,7 +4,6 @@ import it.uniroma2.santapaola.christian.GitSubSystem.Commit;
 import it.uniroma2.santapaola.christian.JiraSubSystem.Ticket;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
 

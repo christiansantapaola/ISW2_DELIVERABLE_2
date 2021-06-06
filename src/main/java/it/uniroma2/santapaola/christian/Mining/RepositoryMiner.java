@@ -8,12 +8,10 @@ import it.uniroma2.santapaola.christian.JiraSubSystem.JiraHandler;
 import it.uniroma2.santapaola.christian.JiraSubSystem.ReleaseTimeline;
 import it.uniroma2.santapaola.christian.JiraSubSystem.Ticket;
 import it.uniroma2.santapaola.christian.Mining.Exception.NoReleaseFoundException;
-import it.uniroma2.santapaola.christian.Proportion.IncrementProportion;
 import it.uniroma2.santapaola.christian.Proportion.Proportion;
 import it.uniroma2.santapaola.christian.Proportion.ProportionBuilder;
 import it.uniroma2.santapaola.christian.Proportion.SimpleProportion;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;

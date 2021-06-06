@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.regex.Pattern;
 
 public class ReleaseTimeline implements Iterable<Release> {
     private SortedSet<Release> releases;

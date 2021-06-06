@@ -1,18 +1,13 @@
 package it.uniroma2.santapaola.christian.GitSubSystem;
 
 import it.uniroma2.santapaola.christian.GitSubSystem.Exception.GitHandlerException;
-import it.uniroma2.santapaola.christian.GitSubSystem.jgit.GitHandler;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class GitTest {
 

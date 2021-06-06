@@ -2,12 +2,13 @@ package it.uniroma2.santapaola.christian.Mining;
 
 import it.uniroma2.santapaola.christian.GitSubSystem.Exception.GitHandlerException;
 import it.uniroma2.santapaola.christian.GitSubSystem.Git;
-import it.uniroma2.santapaola.christian.JiraSubSystem.Release;
 import it.uniroma2.santapaola.christian.JiraSubSystem.ReleaseTimeline;
 import it.uniroma2.santapaola.christian.Proportion.Proportion;
 import it.uniroma2.santapaola.christian.Proportion.ProportionBuilder;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
