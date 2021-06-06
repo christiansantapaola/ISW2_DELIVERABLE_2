@@ -13,7 +13,13 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) {
-        OutputDirectory outputDirectory = new OutputDirectory("output/", "repository/");
+        if (args.length != 2) {
+            System.err.println("USAGE: command <output-folder> <repository-folder>");
+            return;
+        }
+        String output = args[0];
+        String repository = args[1];
+        OutputDirectory outputDirectory = new OutputDirectory(output, repository);
         ProjectData bookkeeper = new ProjectData("bookkeeper", "BOOKKEEPER", "https://issues.apache.org", "https://github.com/apache/bookkeeper", "^(refs\\/tags\\/)(.*)(?<name>\\d+.\\d+.\\d+)$");
         ProjectData openjpa = new ProjectData("openjpa", "OPENJPA", "https://issues.apache.org", "https://github.com/apache/openjpa", "^(refs\\/tags\\/)(?<name>\\d+.\\d+.\\d+)$");
 
