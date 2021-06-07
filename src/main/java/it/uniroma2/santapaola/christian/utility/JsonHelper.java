@@ -6,12 +6,17 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class JsonHelper {
 
-    static public String readAll(Reader rd) throws IOException {
-        StringBuilder sb = new StringBuilder();
+    /**
+     * private constructor to hide the implicitly public one.
+     */
+    private JsonHelper() {}
+
+    public static String readAll(Reader rd) throws IOException {
+        var sb = new StringBuilder();
         int cp;
         while ((cp = rd.read()) != -1) {
             sb.append((char) cp);
@@ -19,25 +24,21 @@ public class JsonHelper {
         return sb.toString();
     }
 
-    static public JSONArray readJsonArrayFromUrl(String url) throws IOException, JSONException {
+    public static JSONArray readJsonArrayFromUrl(String url) throws IOException, JSONException {
         InputStream is = new URL(url).openStream();
-        try {
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+        try (var rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))){
             String jsonText = readAll(rd);
-            JSONArray json = new JSONArray(jsonText);
-            return json;
+            return new JSONArray(jsonText);
         } finally {
             is.close();
         }
     }
 
-    static public JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
+    public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
         InputStream is = new URL(url).openStream();
-        try {
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+        try (var rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))){
             String jsonText = readAll(rd);
-            JSONObject json = new JSONObject(jsonText);
-            return json;
+            return new JSONObject(jsonText);
         } finally {
             is.close();
         }

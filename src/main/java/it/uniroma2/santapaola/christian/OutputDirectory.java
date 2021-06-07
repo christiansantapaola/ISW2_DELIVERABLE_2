@@ -1,6 +1,5 @@
 package it.uniroma2.santapaola.christian;
 
-import java.io.File;
 
 public class OutputDirectory {
     private String output;
@@ -18,9 +17,4 @@ public class OutputDirectory {
     public String getRepository() {
         return repository;
     }
-
-    public boolean ExistsRepositoryFile(String rpath) {
-        return new File(repository + rpath).exists();
-    }
-
 }

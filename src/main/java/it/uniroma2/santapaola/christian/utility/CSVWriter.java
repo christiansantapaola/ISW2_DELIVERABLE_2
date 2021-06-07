@@ -25,7 +25,7 @@ public class CSVWriter {
     public void writeLine(String[] values) throws IOException{
         if (values.length != noField)
             throw new IllegalArgumentException("ERROR: values len is " + Integer.toString(values.length) + " while the number of column is " + noField);
-        for (int i = 0; i < values.length; i++) {
+        for (var i = 0; i < values.length; i++) {
             writer.append(values[i]);
             if (i == values.length - 1) {
                 writer.append('\n');
