@@ -71,7 +71,7 @@ public class JiraHandler {
             total = json.getInt("total");
             for (; i < total && i < j; i++) {
                 //Iterate through each bug
-                Ticket ticket = jsonToTicket(issues.getJSONObject(i%1000));
+                var ticket = jsonToTicket(issues.getJSONObject(i%1000));
                 result.add(ticket);
             }
         } while (i < total);

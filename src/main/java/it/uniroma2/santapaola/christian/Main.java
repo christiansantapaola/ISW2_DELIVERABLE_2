@@ -1,7 +1,6 @@
 package it.uniroma2.santapaola.christian;
 
 import it.uniroma2.santapaola.christian.git.exception.GitHandlerException;
-import it.uniroma2.santapaola.christian.mining.exception.NoReleaseFoundException;
 import it.uniroma2.santapaola.christian.mining.RepositoryMiner;
 import it.uniroma2.santapaola.christian.utility.CSVWriter;
 
@@ -51,7 +50,7 @@ public class Main {
         }
     }
 
-    public static void doProjectAnalysis(ProjectData projectData, OutputDirectory outputDirectory) throws IOException, GitHandlerException, NoReleaseFoundException {
+    public static void doProjectAnalysis(ProjectData projectData, OutputDirectory outputDirectory) throws IOException, GitHandlerException {
         var miner = buildRepositoryMiner(projectData, outputDirectory);
         var fields = new String[]{"Version", "File Name", "LOC", "LOC_touched",
                 "NR", "NFix", "NAuth",

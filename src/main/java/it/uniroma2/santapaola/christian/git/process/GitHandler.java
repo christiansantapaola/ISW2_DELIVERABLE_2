@@ -42,7 +42,7 @@ public class GitHandler implements Git {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] split = line.split(";;");
-                Commit commit = new Commit(split[0], split[1], LocalDate.parse(split[2]), split[3], LocalDate.parse(split[4]));
+                var commit = new Commit(split[0], split[1], LocalDate.parse(split[2]), split[3], LocalDate.parse(split[4]));
                 commits.add(commit);
             }
             return commits;
@@ -161,7 +161,7 @@ public class GitHandler implements Git {
             } else {
                 type = DiffType.MODIFY;
             }
-            DiffStat diffStat = new DiffStat(oldPath, newPath, type, oldCommit, newCommit, addedLoc, deletedLoc);
+            var diffStat = new DiffStat(oldPath, newPath, type, oldCommit, newCommit, addedLoc, deletedLoc);
             diffs.add(diffStat);
         }
         return diffs;
@@ -195,7 +195,7 @@ public class GitHandler implements Git {
             if (row.length < 2) continue;
             String name = row[1];
             String id = row[0];
-            Tag tag = new Tag(name, id);
+            var tag = new Tag(name, id);
             tags.add(tag);
         }
         return tags;
@@ -226,7 +226,7 @@ public class GitHandler implements Git {
             var reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             List<Commit> commits = parseLog(reader);
             reader.close();
-            if (commits.size() < 1) {
+            if (commits.isEmpty()) {
                 return Optional.empty();
             } else {
                 return Optional.of(commits.get(0));
