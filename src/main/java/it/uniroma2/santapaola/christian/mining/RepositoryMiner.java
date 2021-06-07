@@ -8,7 +8,6 @@ import it.uniroma2.santapaola.christian.git.GitFactory;
 import it.uniroma2.santapaola.christian.jira.JiraHandler;
 import it.uniroma2.santapaola.christian.jira.ReleaseTimeline;
 import it.uniroma2.santapaola.christian.jira.Ticket;
-import it.uniroma2.santapaola.christian.mining.exception.NoReleaseFoundException;
 import it.uniroma2.santapaola.christian.proportion.Proportion;
 import it.uniroma2.santapaola.christian.proportion.ProportionBuilder;
 import it.uniroma2.santapaola.christian.proportion.SimpleProportion;
@@ -59,13 +58,13 @@ public class RepositoryMiner {
      * @throws IOException
      * @throws GitHandlerException
      */
-    public List<Bug> getBugs() throws IOException, GitHandlerException {
+    public List<Bug> getBugs() throws GitHandlerException {
         List<Bug> result = new LinkedList<>();
         for (Ticket ticket : tickets) {
             List<Commit> commits = git.grep(ticket.getKey() + "[^0-9]");
             Optional<Commit> commit = commits.stream().min(cc);
             if (commit.isPresent()) {
-                Bug bug = createBug(ticket, commit.get());
+                var bug = createBug(ticket, commit.get());
                 result.add(bug);
             }
         }
@@ -77,7 +76,7 @@ public class RepositoryMiner {
         return new Bug(commit, ticket, snapshot);
     }
 
-    public ProjectState newProjectState() throws NoReleaseFoundException, GitHandlerException, IOException {
+    public ProjectState newProjectState() throws GitHandlerException{
         return new ProjectState(jira.getProjectName(), git, timeline);
     }
 }

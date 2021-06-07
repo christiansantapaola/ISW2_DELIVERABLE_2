@@ -12,10 +12,6 @@ public class ProjectState {
     private Timeline projectTimeline;
     private String projectName;
     private int version;
-    private long noRevisions;
-    private long changedFileSet;
-    private long maxChangedFileSet;
-    private double avgChangedFileSet;
     private long noReleaseToProcess;
     private Version curr;
     private Optional<Version> next;
@@ -28,10 +24,6 @@ public class ProjectState {
         this.git = git;
         this.projectTimeline = projectTimeline;
         this.version = 0;
-        this.noRevisions = 0;
-        this.changedFileSet = 0;
-        this.maxChangedFileSet = 0;
-        this.avgChangedFileSet = 0;
         noReleaseToProcess = projectTimeline.getVersionTimeline().getNoVersion() / 2;
         curr = projectTimeline.getVersionTimeline().getFirst();
         next = projectTimeline.getVersionTimeline().getNext(curr);
@@ -62,7 +54,6 @@ public class ProjectState {
         resetState();
         version++;
         List<Commit> commits = git.log(Optional.of(curr.getTag().getId()), Optional.of(next.get().getTag().getId()));
-        noRevisions = commits.size();
         commits.sort(cc);
         for (var i = 0; i < commits.size() - 1; i++) {
             List<DiffStat> diffs = git.diff(commits.get(i), commits.get(i+1));
@@ -72,11 +63,11 @@ public class ProjectState {
             }
         }
         Set<String> buggySet = projectTimeline.getBuggyClass(next.get());
-        for (String file : state.keySet()) {
-            boolean buggy = buggySet.contains(file);
-            long noFix = projectTimeline.getNoBugFixed(file, curr, next.get());
-            state.get(file).setBuggy(buggy);
-            state.get(file).setNoFix(noFix);
+        for (var entry : state.entrySet()) {
+            boolean buggy = buggySet.contains(entry.getKey());
+            long noFix = projectTimeline.getNoBugFixed(entry.getKey(), curr, next.get());
+            entry.getValue().setBuggy(buggy);
+            entry.getValue().setNoFix(noFix);
         }
         updateLoc(commits.get(commits.size() - 1));
         clean();
@@ -94,7 +85,7 @@ public class ProjectState {
     }
 
     private void updateClassState(DiffStat diffStat, String author, long noChangedFile) {
-        ClassState classState = state.get(diffStat.getOldPath());
+        var classState = state.get(diffStat.getOldPath());
         if (classState == null) {
             classState = new ClassState(projectName, diffStat.getNewPath());
             state.put(diffStat.getNewPath(), classState);
@@ -111,16 +102,15 @@ public class ProjectState {
     }
 
     public void resetState() {
-        for (String file : state.keySet()) {
-            ClassState classState = state.get(file);
-            classState.reset();
+        for (var entry : state.entrySet()) {
+            entry.getValue().reset();
         }
     }
 
     public void updateLoc(Commit commit) throws GitHandlerException {
         List<DiffStat> diffs = git.diff(GitConstants.EMPTY_TREE_ID, commit.getName());
         for (DiffStat diff : diffs) {
-            ClassState classState = state.get(diff.getNewPath());
+            var classState = state.get(diff.getNewPath());
             if (classState == null) {
                 continue;
             }
@@ -130,9 +120,9 @@ public class ProjectState {
 
     void clean() {
         List<String> toDelete = new ArrayList<>();
-        for (String key : state.keySet()) {
-            if (state.get(key).getLoc() <= 0) {
-                toDelete.add(key);
+        for (var entry : state.entrySet()) {
+            if (entry.getValue().getLoc() <= 0) {
+                toDelete.add(entry.getKey());
             }
         }
         for (String key : toDelete) {
@@ -143,14 +133,6 @@ public class ProjectState {
 
     public int getVersion() {
         return version;
-    }
-
-    public Set<ClassState> getState() {
-        Set<ClassState> classStates = new HashSet<>();
-        for (String file : state.keySet()) {
-            classStates.add(state.get(file));
-        }
-        return classStates;
     }
 
     public long getNoReleaseToProcess() {
