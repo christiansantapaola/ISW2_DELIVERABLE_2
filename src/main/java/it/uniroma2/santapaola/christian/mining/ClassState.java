@@ -162,12 +162,12 @@ public class ClassState {
 
 
     public double getWeightedAge() {
-        var ageAddedLoc = 0.0;
-        for (var i = 0; i < ageHistory.size(); i++) {
+        double ageAddedLoc = 0.0;
+        for (int i = 0; i < ageHistory.size(); i++) {
             ageAddedLoc += (double) ageHistory.get(i);
         }
-        var totalAddedLoc = 0.0;
-        for (var i = 0; i < addedLocHistory.size(); i++) {
+        double totalAddedLoc = 0.0;
+        for (int i = 0; i < addedLocHistory.size(); i++) {
             totalAddedLoc += addedLocHistory.get(i);
         }
         if (totalAddedLoc == 0.0) return 0.0;

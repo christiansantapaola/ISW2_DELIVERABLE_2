@@ -49,13 +49,13 @@ public class ProjectState {
     }
 
     public boolean next() throws GitHandlerException {
-        if (next.isEmpty()) return false;
+        if (!next.isPresent()) return false;
         if (next.get() == projectTimeline.getVersionTimeline().getLast()) return false;
         resetState();
         version++;
         List<Commit> commits = git.log(Optional.of(curr.getTag().getId()), Optional.of(next.get().getTag().getId()));
         commits.sort(cc);
-        for (var i = 0; i < commits.size() - 1; i++) {
+        for (int i = 0; i < commits.size() - 1; i++) {
             List<DiffStat> diffs = git.diff(commits.get(i), commits.get(i+1));
             for (DiffStat diff : diffs) {
                 if (!isJavaClass(diff.getOldPath())) continue;
@@ -63,7 +63,7 @@ public class ProjectState {
             }
         }
         Set<String> buggySet = projectTimeline.getBuggyClass(next.get());
-        for (var entry : state.entrySet()) {
+        for (Map.Entry<String, ClassState> entry : state.entrySet()) {
             boolean buggy = buggySet.contains(entry.getKey());
             long noFix = projectTimeline.getNoBugFixed(entry.getKey(), curr, next.get());
             entry.getValue().setBuggy(buggy);
@@ -85,7 +85,7 @@ public class ProjectState {
     }
 
     private void updateClassState(DiffStat diffStat, String author, long noChangedFile) {
-        var classState = state.get(diffStat.getOldPath());
+        ClassState classState = state.get(diffStat.getOldPath());
         if (classState == null) {
             classState = new ClassState(projectName, diffStat.getNewPath());
             state.put(diffStat.getNewPath(), classState);
@@ -102,7 +102,7 @@ public class ProjectState {
     }
 
     public void resetState() {
-        for (var entry : state.entrySet()) {
+        for (Map.Entry<String, ClassState> entry : state.entrySet()) {
             entry.getValue().reset();
         }
     }
@@ -110,7 +110,7 @@ public class ProjectState {
     public void updateLoc(Commit commit) throws GitHandlerException {
         List<DiffStat> diffs = git.diff(GitConstants.EMPTY_TREE_ID, commit.getName());
         for (DiffStat diff : diffs) {
-            var classState = state.get(diff.getNewPath());
+            ClassState classState = state.get(diff.getNewPath());
             if (classState == null) {
                 continue;
             }
@@ -120,7 +120,7 @@ public class ProjectState {
 
     void clean() {
         List<String> toDelete = new ArrayList<>();
-        for (var entry : state.entrySet()) {
+        for (Map.Entry<String, ClassState> entry : state.entrySet()) {
             if (entry.getValue().getLoc() <= 0) {
                 toDelete.add(entry.getKey());
             }

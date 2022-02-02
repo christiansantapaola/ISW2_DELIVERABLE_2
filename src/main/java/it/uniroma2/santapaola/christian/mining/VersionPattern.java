@@ -1,6 +1,7 @@
 package it.uniroma2.santapaola.christian.mining;
 
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class VersionPattern {
@@ -15,7 +16,7 @@ public class VersionPattern {
     }
 
     public Optional<String> getName(String tag) {
-        var matcher = pattern.matcher(tag);
+        Matcher matcher = pattern.matcher(tag);
         if (!matcher.matches()) {
             return Optional.empty();
         }

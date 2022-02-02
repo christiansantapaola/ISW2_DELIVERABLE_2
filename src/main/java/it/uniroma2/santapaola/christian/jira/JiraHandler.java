@@ -1,9 +1,11 @@
 package it.uniroma2.santapaola.christian.jira;
 
 import it.uniroma2.santapaola.christian.utility.JsonHelper;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.swing.text.DateFormatter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -57,21 +59,21 @@ public class JiraHandler {
      */
     public List<Ticket> getBugTicket() throws IOException, JSONException {
 
-        var j = 0;
-        var i = 0;
-        var total = 1;
+        int j = 0;
+        int i = 0;
+        int total = 1;
         List<Ticket> result = new LinkedList<>();
         //Get JSON API for closed bugs w/ AV in the project
         do {
             //Only gets a max of 1000 at a time, so must do this multiple times  f bugs >1000
             j = i + 1000;
-            var url = queryBuilder.getSearchQuery(i, j);
-            var json = JsonHelper.readJsonFromUrl(url);
-            var issues = json.getJSONArray("issues");
+            String url = queryBuilder.getSearchQuery(i, j);
+            JSONObject json = JsonHelper.readJsonFromUrl(url);
+            JSONArray issues = json.getJSONArray("issues");
             total = json.getInt("total");
             for (; i < total && i < j; i++) {
                 //Iterate through each bug
-                var ticket = jsonToTicket(issues.getJSONObject(i%1000));
+                Ticket ticket = jsonToTicket(issues.getJSONObject(i%1000));
                 result.add(ticket);
             }
         } while (i < total);
@@ -80,13 +82,13 @@ public class JiraHandler {
 
 
     private Ticket jsonToTicket(JSONObject json) {
-        var id = json.getString("id");
-        var key = json.getString("key");
-        var url = json.getString("self");
-        var fields = json.getJSONObject("fields");
-        var dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSxxxx");
-        var resolutionDate = LocalDate.parse(fields.getString("resolutiondate"), dateFormatter);
-        var creationDate = LocalDate.parse(fields.getString("created"), dateFormatter);
+        String id = json.getString("id");
+        String key = json.getString("key");
+        String url = json.getString("self");
+        JSONObject fields = json.getJSONObject("fields");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSxxxx");
+        LocalDate resolutionDate = LocalDate.parse(fields.getString("resolutiondate"), dateFormatter);
+        LocalDate creationDate = LocalDate.parse(fields.getString("created"), dateFormatter);
         return new Ticket(id, key, url, creationDate, resolutionDate);
 
     }
@@ -99,19 +101,19 @@ public class JiraHandler {
      */
     public ReleaseTimeline getReleases() throws IOException, JSONException{
         String url = queryBuilder.getReleasesQuery();
-        var releaseTimeline = new ReleaseTimeline();
+        ReleaseTimeline releaseTimeline = new ReleaseTimeline();
         JSONObject json = JsonHelper.readJsonFromUrl(url);
-        var versions = json.getJSONArray("versions");
-        for (var i = 0; i < versions.length(); i++) {
-            var name = "";
-            var id = "";
+        JSONArray versions = json.getJSONArray("versions");
+        for (int i = 0; i < versions.length(); i++) {
+            String name = "";
+            String id = "";
             if(versions.getJSONObject(i).has(RELEASE_DATE)) {
                 if (versions.getJSONObject(i).has("name"))
                     name = versions.getJSONObject(i).get("name").toString();
                 if (versions.getJSONObject(i).has("id"))
                     id = versions.getJSONObject(i).get("id").toString();
-                var strDate = versions.getJSONObject(i).get(RELEASE_DATE).toString();
-                var date = LocalDate.parse(strDate);
+                String strDate = versions.getJSONObject(i).get(RELEASE_DATE).toString();
+                LocalDate date = LocalDate.parse(strDate);
                 releaseTimeline.insertRelease(name, id, date);
             }
         }

@@ -1,11 +1,13 @@
 package it.uniroma2.santapaola.christian.git.process;
 
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
 import it.uniroma2.santapaola.christian.git.*;
 import it.uniroma2.santapaola.christian.git.exception.GitHandlerException;
 
 import java.io.*;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GitHandler implements Git {
@@ -24,7 +26,7 @@ public class GitHandler implements Git {
 
     private static void clone(String url, String path) {
         try {
-            var pb = new ProcessBuilder("git", "clone", url, path);
+            ProcessBuilder pb = new ProcessBuilder("git", "clone", url, path);
             pb.inheritIO();
             Process p = pb.start();
             p.waitFor();
@@ -42,7 +44,7 @@ public class GitHandler implements Git {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] split = line.split(";;");
-                var commit = new Commit(split[0], split[1], LocalDate.parse(split[2]), split[3], LocalDate.parse(split[4]));
+                Commit commit = new Commit(split[0], split[1], LocalDate.parse(split[2]), split[3], LocalDate.parse(split[4]));
                 commits.add(commit);
             }
             return commits;
@@ -54,10 +56,10 @@ public class GitHandler implements Git {
     @Override
     public List<Commit> log() throws GitHandlerException {
         try {
-            var pb = new ProcessBuilder("git", "log", DATE_ISO_8601, LOG_FORMAT);
+            ProcessBuilder pb = new ProcessBuilder("git", "log", DATE_ISO_8601, LOG_FORMAT);
             pb.directory(repositoryRoot);
-            var process = pb.start();
-            var reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            Process process = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             List<Commit> commits = parseLog(reader);
             reader.close();
             return commits;
@@ -70,10 +72,10 @@ public class GitHandler implements Git {
     @Override
     public List<Commit> log(String path) throws GitHandlerException {
         try {
-            var pb = new ProcessBuilder("git", "log", DATE_ISO_8601, LOG_FORMAT, path);
+            ProcessBuilder pb = new ProcessBuilder("git", "log", DATE_ISO_8601, LOG_FORMAT, path);
             pb.directory(repositoryRoot);
-            var process = pb.start();
-            var reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            Process process = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             List<Commit> commits = parseLog(reader);
             reader.close();
             return commits;
@@ -85,29 +87,29 @@ public class GitHandler implements Git {
     @Override
     public List<Commit> log(Optional<String> tagA, Optional<String> tagB) throws GitHandlerException {
         try {
-            if (tagA.isEmpty() && tagB.isEmpty()) {
+            if (!tagA.isPresent() && !tagB.isPresent()) {
                 return log();
-            } else if (tagA.isPresent() && tagB.isEmpty()) {
-                var pb = new ProcessBuilder("git", "log", DATE_ISO_8601, LOG_FORMAT, tagA.get() + "..." + "HEAD");
+            } else if (tagA.isPresent() && !tagB.isPresent()) {
+                ProcessBuilder pb = new ProcessBuilder("git", "log", DATE_ISO_8601, LOG_FORMAT, tagA.get() + "..." + "HEAD");
                 pb.directory(repositoryRoot);
-                var process = pb.start();
-                var reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                Process process = pb.start();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 List<Commit> commits = parseLog(reader);
                 reader.close();
                 return commits;
-            } else if (tagA.isEmpty()) {
-                var pb = new ProcessBuilder("git", "log", DATE_ISO_8601, LOG_FORMAT, tagB.get());
+            } else if (!tagA.isPresent()) {
+                ProcessBuilder pb = new ProcessBuilder("git", "log", DATE_ISO_8601, LOG_FORMAT, tagB.get());
                 pb.directory(repositoryRoot);
-                var process = pb.start();
-                var reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                java.lang.Process process = pb.start();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 List<Commit> commits = parseLog(reader);
                 reader.close();
                 return commits;
             } else {
-                var pb = new ProcessBuilder("git", "log", DATE_ISO_8601, LOG_FORMAT, tagA.get() + "..." + tagB.get());
+                ProcessBuilder pb = new ProcessBuilder("git", "log", DATE_ISO_8601, LOG_FORMAT, tagA.get() + "..." + tagB.get());
                 pb.directory(repositoryRoot);
-                var process = pb.start();
-                var reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                java.lang.Process process = pb.start();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 List<Commit> commits = parseLog(reader);
                 reader.close();
                 return commits;
@@ -120,10 +122,10 @@ public class GitHandler implements Git {
     @Override
     public List<Commit> grep(String pattern) throws GitHandlerException {
         try {
-            var pb = new ProcessBuilder("git", "log", DATE_ISO_8601, LOG_FORMAT, "--grep=" + pattern);
+            ProcessBuilder pb = new ProcessBuilder("git", "log", DATE_ISO_8601, LOG_FORMAT, "--grep=" + pattern);
             pb.directory(repositoryRoot);
-            var process = pb.start();
-            var reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            java.lang.Process process = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             List<Commit> commits = parseLog(reader);
             reader.close();
             return commits;
@@ -135,15 +137,15 @@ public class GitHandler implements Git {
 
     private List<DiffStat> parseDiff(BufferedReader reader, String oldCommit, String newCommit) throws IOException {
         List<DiffStat> diffs = new ArrayList<>();
-        var pattern = Pattern.compile("^(\\d+)\\s+(\\d+)\\s+([^\\s]+)(\\s=>\\s([^\\s]+))?$");
+        Pattern pattern = Pattern.compile("^(\\d+)\\s+(\\d+)\\s+([^\\s]+)(\\s=>\\s([^\\s]+))?$");
         String line;
         while ((line = reader.readLine()) != null) {
-            var matcher = pattern.matcher(line);
+            Matcher matcher = pattern.matcher(line);
             if (!matcher.matches()) {
                 continue;
             }
-            var addedLoc = Long.parseLong(matcher.group(1));
-            var deletedLoc = Long.parseLong(matcher.group(2));
+            long addedLoc = Long.parseLong(matcher.group(1));
+            long deletedLoc = Long.parseLong(matcher.group(2));
             String oldPath = matcher.group(3);
             String newPath;
             if (matcher.group(5) != null) {
@@ -161,7 +163,7 @@ public class GitHandler implements Git {
             } else {
                 type = DiffType.MODIFY;
             }
-            var diffStat = new DiffStat(oldPath, newPath, type, oldCommit, newCommit, addedLoc, deletedLoc);
+            DiffStat diffStat = new DiffStat(oldPath, newPath, type, oldCommit, newCommit, addedLoc, deletedLoc);
             diffs.add(diffStat);
         }
         return diffs;
@@ -175,10 +177,10 @@ public class GitHandler implements Git {
     @Override
     public List<DiffStat> diff(String c1, String c2) throws GitHandlerException {
         try {
-            var pb = new ProcessBuilder("git", "diff", "--numstat", c1, c2);
+            ProcessBuilder pb = new ProcessBuilder("git", "diff", "--numstat", c1, c2);
             pb.directory(repositoryRoot);
-            var process = pb.start();
-            var reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            Process process = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             List<DiffStat> diffStats = parseDiff(reader, c1, c2);
             reader.close();
             return diffStats;
@@ -195,7 +197,7 @@ public class GitHandler implements Git {
             if (row.length < 2) continue;
             String name = row[1];
             String id = row[0];
-            var tag = new Tag(name, id);
+            Tag tag = new Tag(name, id);
             tags.add(tag);
         }
         return tags;
@@ -204,10 +206,10 @@ public class GitHandler implements Git {
     @Override
     public List<Tag> getAllTags() throws GitHandlerException {
         try {
-            var pb = new ProcessBuilder("git", "show-ref", "--tags");
+            ProcessBuilder pb = new ProcessBuilder("git", "show-ref", "--tags");
             pb.directory(repositoryRoot);
-            var process = pb.start();
-            var reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            Process process = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             List<Tag> tags = parseTag(reader);
             reader.close();
             return tags;
@@ -220,10 +222,10 @@ public class GitHandler implements Git {
     @Override
     public Optional<Commit> show(String id) throws GitHandlerException {
         try {
-            var pb = new ProcessBuilder("git", "log", "-1", DATE_ISO_8601, LOG_FORMAT, id);
+            ProcessBuilder pb = new ProcessBuilder("git", "log", "-1", DATE_ISO_8601, LOG_FORMAT, id);
             pb.directory(repositoryRoot);
-            var process = pb.start();
-            var reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            Process process = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             List<Commit> commits = parseLog(reader);
             reader.close();
             if (commits.isEmpty()) {
@@ -256,15 +258,15 @@ public class GitHandler implements Git {
 
 
     private Set<String> getSnapshot(String id, String pattern) throws IOException {
-        var pb = new ProcessBuilder("git", "ls-tree", "-r", "--name-only", id);
+        ProcessBuilder pb = new ProcessBuilder("git", "ls-tree", "-r", "--name-only", id);
         pb.directory(repositoryRoot);
-        var process = pb.start();
-        var reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        Process process = pb.start();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         Set<String> snapshot = new HashSet<>();
         String line;
-        var filter = Pattern.compile(pattern);
+        Pattern filter = Pattern.compile(pattern);
         while ((line = reader.readLine()) != null) {
-            var matcher = filter.matcher(line);
+            Matcher matcher = filter.matcher(line);
             if (matcher.matches()) {
                 snapshot.add(line);
             }
@@ -274,16 +276,16 @@ public class GitHandler implements Git {
     }
 
     private HashSet<String> getChangedFiles(String id, String pattern) throws IOException {
-        var pb = new ProcessBuilder("git", "diff", "--name-only", id + "~", id);
+        ProcessBuilder pb = new ProcessBuilder("git", "diff", "--name-only", id + "~", id);
         pb.directory(repositoryRoot);
-        var process = pb.start();
-        var reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        Process process = pb.start();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         HashSet<String> result = new HashSet<>();
         // skip first line
         String line;
-        var filter = Pattern.compile(pattern);
+        Pattern filter = Pattern.compile(pattern);
         while ((line = reader.readLine()) != null) {
-            var matcher = filter.matcher(line);
+            Matcher matcher = filter.matcher(line);
             if (matcher.matches()) {
                 result.add(line);
             }
@@ -295,17 +297,17 @@ public class GitHandler implements Git {
     @Override
     public long getNoChangedFiles(Commit commit) throws GitHandlerException {
         try {
-            var pb = new ProcessBuilder("git", "log", "-1", "--format=oneline", "--shortstat", commit.getName());
+            ProcessBuilder pb = new ProcessBuilder("git", "log", "-1", "--format=oneline", "--shortstat", commit.getName());
             pb.directory(repositoryRoot);
-            var process = pb.start();
-            var reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            var commitLine = reader.readLine();
+            Process process = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String commitLine = reader.readLine();
             if (commitLine == null) throw new GitHandlerException();
-            var statLine = reader.readLine();
+            String statLine = reader.readLine();
             if (statLine == null) return 0;
             reader.close();
-            var pattern = Pattern.compile("\\s+(\\d+).*");
-            var matcher = pattern.matcher(statLine);
+            Pattern pattern = Pattern.compile("\\s+(\\d+).*");
+            Matcher matcher = pattern.matcher(statLine);
             if (matcher.matches()) {
                 if (!matcher.group(1).equals("-")) {
                     return Long.parseLong(matcher.group(1));

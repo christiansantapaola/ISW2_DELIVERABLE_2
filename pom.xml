@@ -10,8 +10,8 @@
     <packaging>jar</packaging>
 
     <properties>
-        <maven.compiler.source>14</maven.compiler.source>
-        <maven.compiler.target>14</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <sonar.projectKey>qrowsxi_ISW2_DELIVERABLE_2</sonar.projectKey>
         <sonar.organization>qrowsxi</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -29,5 +29,27 @@
             <version>5.7.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>weka-stable</artifactId>
+            <version>3.8.0</version>
+        </dependency>
+
+<!--
+        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>weka-dev</artifactId>
+            <version>3.9.5</version>
+        </dependency>
+-->
+
+        <!-- https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/SMOTE -->
+        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>SMOTE</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+
+
     </dependencies>
 </project>

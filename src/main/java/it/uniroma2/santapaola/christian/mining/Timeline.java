@@ -22,14 +22,14 @@ public class Timeline {
     public Timeline(List<Bug> bugs, ReleaseTimeline releases, Git git, ProportionBuilder.ProportionType type, String tagPattern) throws GitHandlerException {
         this.versionTimeline = new VersionTimeline(git, releases, tagPattern);
         this.proportion = ProportionBuilder.build(type, bugs);
-        this.lifeCycles = bugs.stream().map((Bug bug) -> new BugLifeCycle(bug, versionTimeline, proportion)).collect(Collectors.toUnmodifiableList());
+        this.lifeCycles = bugs.stream().map((Bug bug) -> new BugLifeCycle(bug, versionTimeline, proportion)).collect(Collectors.toList());
     }
 
     public Set<String> getBuggyClass(Version version) {
         Set<String> buggySet = new HashSet<>();
         List<BugLifeCycle> bugs = lifeCycles.stream()
                 .filter(bug -> vc.compare(bug.getIv(), version) <= 0 && vc.compare(bug.getFv(), version) > 0)
-                .collect(Collectors.toUnmodifiableList());
+                .collect(Collectors.toList());
         for (BugLifeCycle bug : bugs) {
             buggySet.addAll(bug.getBug().getAffectedFile());
         }
@@ -46,7 +46,7 @@ public class Timeline {
     }
 
     public List<BugLifeCycle> getFixedBugsBetween(Version from, Version to) {
-        return lifeCycles.stream().filter(bug -> vc.compare(from, bug.getFv()) < 0 && vc.compare(to, bug.getFv()) >= 0).collect(Collectors.toUnmodifiableList());
+        return lifeCycles.stream().filter(bug -> vc.compare(from, bug.getFv()) < 0 && vc.compare(to, bug.getFv()) >= 0).collect(Collectors.toList());
     }
 
     public Proportion getProportion() {

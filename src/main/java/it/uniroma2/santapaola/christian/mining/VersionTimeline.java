@@ -27,8 +27,8 @@ public class VersionTimeline {
         timeline.add(min);
         long index = 1;
         for (Tag tag : git.getAllTags()) {
-            var version = tagToVersion(tag, releases, pattern, index);
-            if (version.isEmpty()) continue;
+            Optional<Version> version = tagToVersion(tag, releases, pattern, index);
+            if (!version.isPresent()) continue;
             timeline.add(version.get());
             index += 1;
         }
@@ -38,9 +38,9 @@ public class VersionTimeline {
 
     private static Optional<Version> tagToVersion(Tag tag, ReleaseTimeline releases, VersionPattern pattern, long index) {
         Optional<String> name = pattern.getName(tag.getName());
-        if (name.isEmpty()) return Optional.empty();
+        if (!name.isPresent()) return Optional.empty();
         Optional<Release> release = releases.get(name.get());
-        if (release.isEmpty()) return Optional.empty();
+        if (!release.isPresent()) return Optional.empty();
         return Optional.of(new Version(release.get(), tag, index));
     }
 
@@ -58,7 +58,7 @@ public class VersionTimeline {
     }
 
     public Version get(int nth) {
-        var pos = 0;
+        int pos = 0;
         for(Version version : timeline) {
             if (pos == nth) {
                 return version;

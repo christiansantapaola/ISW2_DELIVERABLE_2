@@ -15,9 +15,9 @@ public class ReleaseTimeline implements Iterable<Release> {
     }
 
     public void insertRelease(String name, String id, LocalDate releaseDate) {
-        var release = new Release(name, id, releaseDate);
+        Release release = new Release(name, id, releaseDate);
         releases.add(release);
-        var noRelease = 1;
+        int noRelease = 1;
         for (Release rel : releases) {
             rel.setNoRelease(noRelease);
             noRelease++;

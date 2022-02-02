@@ -40,7 +40,7 @@ public class RepositoryMiner {
      * @throws IOException
      */
     public RepositoryMiner(String gitPath, String gitUrl, String jiraProjectName, String jiraUrl, String tagPattern) throws IOException, GitHandlerException {
-        var gitFactory = new GitFactory(gitUrl, gitPath);
+        GitFactory gitFactory = new GitFactory(gitUrl, gitPath);
         gitFactory.setGitProcess();
         git = gitFactory.build();
         jira = new JiraHandler(jiraProjectName, jiraUrl);
@@ -64,7 +64,7 @@ public class RepositoryMiner {
             List<Commit> commits = git.grep(ticket.getKey() + "[^0-9]");
             Optional<Commit> commit = commits.stream().min(cc);
             if (commit.isPresent()) {
-                var bug = createBug(ticket, commit.get());
+                Bug bug = createBug(ticket, commit.get());
                 result.add(bug);
             }
         }

@@ -13,10 +13,10 @@ public class BugLifeCycle {
 
     public BugLifeCycle(Bug bug, VersionTimeline timeline, Proportion proportion) {
         this.bug = bug;
-        this.ov = timeline.getNext(bug.getTicketCreationDate()).orElseThrow();
-        this.fv = timeline.getNext(bug.getFixCommitDate()).orElseThrow();
+        this.ov = timeline.getNext(bug.getTicketCreationDate()).orElseThrow(null);
+        this.fv = timeline.getNext(bug.getFixCommitDate()).orElseThrow(null);
         proportion.computeProportion(ov);
-        var noIv = proportion.computeIV((int) fv.getNoVersion(), (int) ov.getNoVersion());
+        int noIv = proportion.computeIV((int) fv.getNoVersion(), (int) ov.getNoVersion());
         this.iv = timeline.get(noIv);
         this.av = fv.getVersionDiff(this.iv);
     }
