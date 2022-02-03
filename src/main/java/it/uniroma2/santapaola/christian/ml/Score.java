@@ -1,66 +1,35 @@
 package it.uniroma2.santapaola.christian.ml;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class Score {
-    private double truePositive;
-    private double trueNegative;
-    private double falsePositive;
-    private double falseNegative;
-    private double accuracy;
-    private double precision;
-    private double recall;
-    private double f1;
-    private double kappa;
+    private ConfusionMatrix confusionMatrix;
+    private MLMetrics metrics;
     private double trainingPercent;
     private double defectiveTraining;
     private double defectiveTesting;
-    private double auc;
 
 
 
-    public Score(double truePositive, double trueNegative, double falsePositive, double falseNegative, double accuracy, double precision, double recall, double f1, double kappa, double trainingPercent, double defectiveTraining, double defectiveTesting, double auc) {
-        this.truePositive = truePositive;
-        this.trueNegative = trueNegative;
-        this.falsePositive = falsePositive;
-        this.falseNegative = falseNegative;
-        this.accuracy = accuracy;
-        this.precision = precision;
-        this.recall = recall;
-        this.f1 = f1;
-        this.kappa = kappa;
+    public Score(ConfusionMatrix confusionMatrix, MLMetrics metrics, double trainingPercent, double defectiveTraining, double defectiveTesting) {
+        this.confusionMatrix = confusionMatrix;
+        this.metrics = metrics;
         this.trainingPercent = trainingPercent;
         this.defectiveTraining = defectiveTraining;
         this.defectiveTesting = defectiveTesting;
-        this.auc = auc;
     }
 
     public void add(Score score) {
-        this.truePositive += score.truePositive;
-        this.trueNegative += score.trueNegative;
-        this.falsePositive += score.falsePositive;
-        this.falseNegative += score.falseNegative;
-        this.accuracy += score.accuracy;
-        this.precision += score.precision;
-        this.recall += score.recall;
-        this.f1 += score.f1;
-        this.kappa += score.kappa;
+        this.confusionMatrix.add(score.confusionMatrix);
+        this.metrics.add(score.metrics);
         this.trainingPercent += score.trainingPercent;
         this.defectiveTraining += score.defectiveTraining;
         this.defectiveTesting += score.defectiveTesting;
     }
 
     public void divide(double div) {
-        this.truePositive = truePositive / div;
-        this.trueNegative = trueNegative / div;
-        this.falsePositive = falsePositive / div;
-        this.falseNegative = falseNegative / div;
-        this.accuracy = accuracy / div;
-        this.precision = precision / div;
-        this.recall = recall / div;
-        this.f1 = f1 / div;
-        this.kappa = kappa / div;
+        this.confusionMatrix.div(div);
+        this.metrics.div(div);
         this.trainingPercent = trainingPercent / div;
         this.defectiveTraining = defectiveTraining / div;
         this.defectiveTesting = defectiveTesting / div;
@@ -68,39 +37,39 @@ public class Score {
     }
 
     public double getTruePositive() {
-        return truePositive;
+        return confusionMatrix.getTruePositive();
     }
 
     public double getTrueNegative() {
-        return trueNegative;
+        return confusionMatrix.getTrueNegative();
     }
 
     public double getFalsePositive() {
-        return falsePositive;
+        return confusionMatrix.getFalsePositive();
     }
 
     public double getFalseNegative() {
-        return falseNegative;
+        return confusionMatrix.getFalseNegative();
     }
 
     public double getAccuracy() {
-        return accuracy;
+        return metrics.getAccuracy();
     }
 
     public double getPrecision() {
-        return precision;
+        return metrics.getPrecision();
     }
 
     public double getRecall() {
-        return recall;
+        return metrics.getRecall();
     }
 
     public double getF1() {
-        return f1;
+        return metrics.getF1();
     }
 
     public double getKappa() {
-        return kappa;
+        return metrics.getKappa();
     }
 
     public double getTrainingPercent() {
@@ -116,11 +85,11 @@ public class Score {
     }
 
     public double getAuc() {
-        return auc;
+        return metrics.getAuc();
     }
 
     public static Score mean(List<Score> scoreList) {
-        Score mean = new Score(0, 0,0,0,0,0,0,0,0,0,0,0,0);
+        Score mean = new Score(new ConfusionMatrix(), new MLMetrics(),0,0, 0);
         for (Score score : scoreList) {
             mean.add(score);
         }
@@ -131,15 +100,15 @@ public class Score {
     @Override
     public String toString() {
         return "Score{" +
-                "truePositive=" + truePositive +
-                ", trueNegative=" + trueNegative +
-                ", falsePositive=" + falsePositive +
-                ", falseNegative=" + falseNegative +
-                ", accuracy=" + accuracy +
-                ", precision=" + precision +
-                ", recall=" + recall +
-                ", f1=" + f1 +
-                ", kappa=" + kappa +
+                "truePositive=" + confusionMatrix.getTruePositive() +
+                ", trueNegative=" + confusionMatrix.getTrueNegative() +
+                ", falsePositive=" + confusionMatrix.getFalsePositive() +
+                ", falseNegative=" + confusionMatrix.getFalseNegative() +
+                ", accuracy=" + metrics.getAccuracy() +
+                ", precision=" + metrics.getPrecision() +
+                ", recall=" + metrics.getRecall() +
+                ", f1=" + metrics.getF1() +
+                ", kappa=" + metrics.getKappa() +
                 ", trainingPercent=" + trainingPercent +
                 ", defectiveTraining=" + defectiveTraining +
                 ", defectiveTesting=" + defectiveTesting +

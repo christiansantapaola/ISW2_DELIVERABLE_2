@@ -5,33 +5,18 @@ import weka.attributeSelection.CfsSubsetEval;
 import weka.classifiers.Classifier;
 import weka.classifiers.CostMatrix;
 import weka.classifiers.Evaluation;
-import weka.classifiers.bayes.NaiveBayes;
-import weka.classifiers.evaluation.ThresholdCurve;
 import weka.classifiers.meta.CostSensitiveClassifier;
 import weka.classifiers.meta.FilteredClassifier;
-import weka.core.Instance;
 import weka.core.Instances;
 import weka.filters.Filter;
 import weka.filters.MultiFilter;
-import weka.filters.supervised.instance.*;
-import weka.filters.supervised.attribute.*;
-import weka.filters.unsupervised.attribute.Standardize;
-import weka.classifiers.meta.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import weka.filters.supervised.attribute.AttributeSelection;
 
 public class Pipeline {
-    private String classifierName;
-    private String sampling;
-    private String featureSelection;
     private MultiFilter multiFilter;
     private FilteredClassifier classifier;
 
     public Pipeline(Filter[] filters, Classifier classifier) {
-        classifierName = classifier.getClass().getTypeName();
         multiFilter = new MultiFilter();
         multiFilter.setFilters(filters);
         this.classifier = new FilteredClassifier();
@@ -44,31 +29,47 @@ public class Pipeline {
     }
 
 
-    public void train(Instances trainingSet) throws Exception {
-        classifier.buildClassifier(trainingSet);
+    public void train(Instances trainingSet) throws WekaError {
+        try {
+            classifier.buildClassifier(trainingSet);
+        } catch (Exception e) {
+            throw new WekaError(e.getMessage());
+        }
     }
 
-    public Evaluation score(Instances trainingSet, Instances testingSet) throws Exception {
-        Evaluation evaluation = new Evaluation(trainingSet);
-        evaluation.evaluateModel(classifier, testingSet);
-        return evaluation;
+    public Evaluation score(Instances trainingSet, Instances testingSet) throws WekaError {
+        try {
+            Evaluation evaluation = new Evaluation(trainingSet);
+            evaluation.evaluateModel(classifier, testingSet);
+            return evaluation;
+        } catch (Exception e) {
+            throw new WekaError(e.getMessage());
+        }
     }
 
-    public Evaluation trainAndScore(Instances trainingSet, Instances testingSet) throws Exception {
+    public Evaluation trainAndScore(Instances trainingSet, Instances testingSet) throws WekaError {
         this.train(trainingSet);
         return this.score(trainingSet, testingSet);
     }
 
-    public static Instances filter(Filter filter, Instances data) throws Exception {
-        filter.setInputFormat(data);
-        Instances processed = Filter.useFilter(data, filter);
-        processed.setClassIndex(data.classIndex());
-        return processed;
+    public static Instances filter(Filter filter, Instances data) throws WekaError {
+        try {
+            filter.setInputFormat(data);
+            Instances processed = Filter.useFilter(data, filter);
+            processed.setClassIndex(data.classIndex());
+            return processed;
+        } catch (Exception e) {
+            throw new WekaError(e.getMessage());
+        }
     }
 
-    public static Instances filter(Filter filter, Instances data, String[] options) throws Exception {
-        filter.setOptions(options);
-        return filter(filter, data);
+    public static Instances filter(Filter filter, Instances data, String[] options) throws WekaError {
+        try {
+            filter.setOptions(options);
+            return filter(filter, data);
+        } catch (Exception e) {
+            throw new WekaError(e.getMessage());
+        }
     }
 
     public static AttributeSelection attributeSelection() {

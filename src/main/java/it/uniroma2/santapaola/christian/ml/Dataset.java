@@ -6,8 +6,6 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
 
-import java.nio.file.Path;
-
 
 public class Dataset {
     private Instances data;

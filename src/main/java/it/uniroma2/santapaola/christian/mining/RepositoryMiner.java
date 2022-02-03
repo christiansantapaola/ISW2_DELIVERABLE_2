@@ -2,9 +2,9 @@ package it.uniroma2.santapaola.christian.mining;
 
 import it.uniroma2.santapaola.christian.git.Commit;
 import it.uniroma2.santapaola.christian.git.CommitComparator;
-import it.uniroma2.santapaola.christian.git.exception.GitHandlerException;
 import it.uniroma2.santapaola.christian.git.Git;
 import it.uniroma2.santapaola.christian.git.GitFactory;
+import it.uniroma2.santapaola.christian.git.exception.GitHandlerException;
 import it.uniroma2.santapaola.christian.jira.JiraHandler;
 import it.uniroma2.santapaola.christian.jira.ReleaseTimeline;
 import it.uniroma2.santapaola.christian.jira.Ticket;

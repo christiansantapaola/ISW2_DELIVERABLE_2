@@ -1,9 +1,9 @@
 package it.uniroma2.santapaola.christian.mining;
 
-import it.uniroma2.santapaola.christian.git.exception.GitHandlerException;
 import it.uniroma2.santapaola.christian.git.Git;
 import it.uniroma2.santapaola.christian.git.GitConstants;
 import it.uniroma2.santapaola.christian.git.Tag;
+import it.uniroma2.santapaola.christian.git.exception.GitHandlerException;
 import it.uniroma2.santapaola.christian.jira.Release;
 import it.uniroma2.santapaola.christian.jira.ReleaseTimeline;
 

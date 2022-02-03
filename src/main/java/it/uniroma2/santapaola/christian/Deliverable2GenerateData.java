@@ -10,7 +10,6 @@ import it.uniroma2.santapaola.christian.utility.ProjectData;
 
 import java.io.File;
 import java.io.IOException;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

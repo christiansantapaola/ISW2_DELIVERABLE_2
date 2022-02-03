@@ -1,9 +1,6 @@
 package it.uniroma2.santapaola.christian;
 
-import it.uniroma2.santapaola.christian.ml.ClassifierInfo;
-import it.uniroma2.santapaola.christian.ml.Dataset;
-import it.uniroma2.santapaola.christian.ml.Pipeline;
-import it.uniroma2.santapaola.christian.ml.Score;
+import it.uniroma2.santapaola.christian.ml.*;
 import it.uniroma2.santapaola.christian.utility.CSVWriter;
 import weka.classifiers.Classifier;
 import weka.classifiers.bayes.BayesNet;
@@ -15,12 +12,10 @@ import weka.filters.supervised.instance.SpreadSubsample;
 import weka.filters.unsupervised.attribute.Standardize;
 import weka.filters.unsupervised.instance.Resample;
 
-import java.io.File;
-import java.nio.file.Path;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.logging.Level;
@@ -29,18 +24,6 @@ import java.util.logging.Logger;
 public class Deliverable2MachineLearningAnalysis {
 
     private static final Logger LOGGER = Logger.getLogger(Deliverable2MachineLearningAnalysis.class.getName());
-
-    private String[] headers = new String[]{"dataset",
-            "%training",
-            "%Defective in Training",
-            "%Defective in testing",
-            "classifier",
-            "balancing",
-            "feature selection",
-            "sensitivity",
-            "TP", "FP", "TN", "FN", "precision", "recall", "auc", "kappa"};
-
-    private CSVWriter csvWriter;
 
     public static Pipeline[] generateFilter() {
         ArrayList<Pipeline> result = new ArrayList<>();
@@ -86,27 +69,22 @@ public class Deliverable2MachineLearningAnalysis {
                 "TP", "FP", "TN", "FN", "precision", "recall", "auc", "kappa"
         };
 
-//        CSVWriter csvWriter = new CSVWriter(new File(output), headers);
-//        csvWriter.writeFieldName();
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
         for (ClassifierInfo clfInfo : classifierInfos) {
-            Runnable runnable = new Runnable() {
-                @Override
-                public void run() {
+            Runnable runnable = () -> {
                     try {
                         CSVWriter csvWriter = new CSVWriter(Paths.get(output, clfInfo.getName() + ".csv").toAbsolutePath().toFile(), headers);
                         csvWriter.writeFieldName();
                         classifierInfoToCSV(dataset, clfInfo, csvWriter);
-                    } catch (Exception e) {
-                        throw new RuntimeException();
+                    } catch (IOException | WekaError e) {
+                        Logger.getLogger("isw2").log(Level.SEVERE, e.getMessage());
                     }
-                }
             };
             threadPoolExecutor.submit(runnable);
         }
     }
 
-    public static void classifierInfoToCSV(Dataset dataset, ClassifierInfo classifierInfo, CSVWriter csvWriter) throws Exception {
+    public static void classifierInfoToCSV(Dataset dataset, ClassifierInfo classifierInfo, CSVWriter csvWriter) throws WekaError, IOException {
         List<Score> scores = classifierInfo.walkingForward(dataset);
         scores.add(Score.mean(scores));
         for (Score score : scores) {

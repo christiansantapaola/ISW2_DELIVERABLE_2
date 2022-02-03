@@ -7,7 +7,6 @@ import weka.core.Instance;
 import weka.core.Instances;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class WalkingForward {
@@ -55,7 +54,7 @@ public class WalkingForward {
     private double computeIncorrect(Evaluation evaluation) {
         return ((evaluation.correct() + evaluation.incorrect()) != 0) ? evaluation.incorrect() / (evaluation.correct() + evaluation.incorrect()) : 0;
     }
-    public List<Score> evaluate() throws Exception {
+    public List<Score> evaluate() throws WekaError {
         int classIndex = dataset.getPositiveClassIndex();
         List<Score> scoreList = new ArrayList<>();
         for (int version = 0; version <= maxVersion; version++) {
@@ -65,19 +64,21 @@ public class WalkingForward {
             Evaluation evaluation = pipeline.score(sets.getFirst(), sets.getSecond());
             Evaluation trEvaluation = pipeline.score(sets.getFirst(), sets.getFirst());
             double accuracy = computeAccuracy(evaluation);
-            Score score = new Score(evaluation.numTruePositives(classIndex),
+            ConfusionMatrix confusionMatrix = new ConfusionMatrix(evaluation.numTruePositives(classIndex),
                     evaluation.numTrueNegatives(classIndex),
                     evaluation.numFalsePositives(classIndex),
-                    evaluation.numFalseNegatives(classIndex),
-                    accuracy,
+                    evaluation.numFalseNegatives(classIndex));
+            MLMetrics metrics = new MLMetrics(accuracy,
                     evaluation.precision(classIndex),
                     evaluation.recall(classIndex),
                     evaluation.fMeasure(classIndex),
                     evaluation.kappa(),
+                    evaluation.areaUnderPRC(classIndex));
+            Score score = new Score(confusionMatrix,
+                    metrics,
                     (double) sets.getFirst().numInstances() / dataset.getData().numInstances(),
                     computeIncorrect(trEvaluation),
-                    computeIncorrect(evaluation),
-                    evaluation.areaUnderPRC(classIndex));
+                    computeIncorrect(evaluation));
             scoreList.add(score);
         }
         return scoreList;

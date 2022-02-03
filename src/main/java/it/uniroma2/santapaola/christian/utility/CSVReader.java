@@ -1,18 +1,18 @@
 package it.uniroma2.santapaola.christian.utility;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 
 public class CSVReader {
-    private String filePath;
     private File file;
     private BufferedReader reader;
     private String[] attribute;
     private long pos;
 
     public CSVReader(String filePath) throws IOException {
-        this.filePath = filePath;
         this.file = new File(filePath);
         this.reader = new BufferedReader(new FileReader(file));
         this.attribute = reader.readLine().split(",");
@@ -20,7 +20,6 @@ public class CSVReader {
     }
 
     public CSVReader(String filePath, String[] attribute) throws IOException {
-        this.filePath = filePath;
         this.file = new File(filePath);
         this.reader = new BufferedReader(new FileReader(file));
         this.attribute = attribute;
@@ -53,16 +52,9 @@ public class CSVReader {
     public String[] readRowAsString() throws IOException {
         String line = reader.readLine();
         if (line == null) {
-            return null;
+            return new String[]{};
         }
         pos++;
         return line.split(",");
     }
-
-
-    public long getPosition() throws IOException {
-        return pos;
-
-    }
-
 }
