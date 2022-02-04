@@ -12,7 +12,6 @@ import weka.filters.supervised.instance.SpreadSubsample;
 import weka.filters.unsupervised.instance.Resample;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ClassifierInfo {
     private ClassifierType classifier;
@@ -121,9 +120,9 @@ public class ClassifierInfo {
         }
     }
 
-    public List<Score> walkingForward(Dataset dataset) throws WekaError {
+    public Score walkingForward(Dataset dataset) throws WekaError {
         WalkingForward walkingForward = new WalkingForward(pipeline, dataset);
-        return walkingForward.evaluate();
+        return walkingForward.evaluateMean();
     }
 
     public ClassifierType getClassifier() {

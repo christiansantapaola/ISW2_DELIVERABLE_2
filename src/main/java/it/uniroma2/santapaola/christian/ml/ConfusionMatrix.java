@@ -48,6 +48,7 @@ public class ConfusionMatrix {
     }
 
     public void div(double div) {
+        if (div == 0) return;
         this.truePositive = this.truePositive / div ;
         this.trueNegative = this.trueNegative / div ;
         this.falsePositive = this.falsePositive / div ;

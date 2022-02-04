@@ -28,6 +28,7 @@ public class Score {
     }
 
     public void divide(double div) {
+        if (div == 0) return;
         this.confusionMatrix.div(div);
         this.metrics.div(div);
         this.trainingPercent = trainingPercent / div;
@@ -109,6 +110,7 @@ public class Score {
                 ", recall=" + metrics.getRecall() +
                 ", f1=" + metrics.getF1() +
                 ", kappa=" + metrics.getKappa() +
+                ", auc=" + metrics.getAuc() +
                 ", trainingPercent=" + trainingPercent +
                 ", defectiveTraining=" + defectiveTraining +
                 ", defectiveTesting=" + defectiveTesting +

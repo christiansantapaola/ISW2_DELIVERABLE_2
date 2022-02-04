@@ -22,7 +22,7 @@ public class CSVWriter {
         writeLine(fieldName);
     }
 
-    public void writeLine(String[] values) throws IOException{
+    public synchronized void writeLine(String[] values) throws IOException{
         if (values.length != noField)
             throw new IllegalArgumentException("ERROR: values len is " + Integer.toString(values.length) + " while the number of column is " + noField);
         for (int i = 0; i < values.length; i++) {

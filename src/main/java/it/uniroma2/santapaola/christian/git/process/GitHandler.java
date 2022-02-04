@@ -42,6 +42,7 @@ public class GitHandler implements Git {
             List<Commit> commits = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
+                line = line.substring(1, line.length() - 1);
                 String[] split = line.split(";;");
                 Commit commit = new Commit(split[0], split[1], LocalDate.parse(split[2]), split[3], LocalDate.parse(split[4]));
                 commits.add(commit);

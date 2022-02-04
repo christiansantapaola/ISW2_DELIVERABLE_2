@@ -15,9 +15,7 @@ import weka.filters.unsupervised.instance.Resample;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -66,46 +64,41 @@ public class Deliverable2MachineLearningAnalysis {
                 "balancing",
                 "feature selection",
                 "sensitivity",
-                "TP", "FP", "TN", "FN", "precision", "recall", "auc", "kappa"
+                "TP", "FP", "TN", "FN", "precision", "recall", "f1", "auc", "kappa"
         };
-
-        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
-        for (ClassifierInfo clfInfo : classifierInfos) {
-            Runnable runnable = () -> {
-                    try {
-                        CSVWriter csvWriter = new CSVWriter(Paths.get(output, clfInfo.getName() + ".csv").toAbsolutePath().toFile(), headers);
-                        csvWriter.writeFieldName();
-                        classifierInfoToCSV(dataset, clfInfo, csvWriter);
-                    } catch (IOException | WekaError e) {
-                        Logger.getLogger("isw2").log(Level.SEVERE, e.getMessage());
-                    }
-            };
-            threadPoolExecutor.submit(runnable);
-        }
+        CSVWriter csvWriter = new CSVWriter(Paths.get(output).toAbsolutePath().toFile(), headers);
+        csvWriter.writeFieldName();
+        Arrays.stream(classifierInfos).parallel().forEach(clfInfo -> {
+            try {
+                Logger.getLogger("isw2").log(Level.INFO, clfInfo.getName());
+                Score score = clfInfo.walkingForward(dataset);
+                classifierInfoToCSV(score, dataset, clfInfo, csvWriter);
+                Logger.getLogger("isw2").log(Level.INFO, String.format("%s %s", clfInfo.getName(), "DONE"));
+            } catch (WekaError | IOException e) {
+                Logger.getLogger("isw2").log(Level.SEVERE, e.getMessage());
+            }
+        });
     }
 
-    public static void classifierInfoToCSV(Dataset dataset, ClassifierInfo classifierInfo, CSVWriter csvWriter) throws WekaError, IOException {
-        List<Score> scores = classifierInfo.walkingForward(dataset);
-        scores.add(Score.mean(scores));
-        for (Score score : scores) {
-            String[] row = new String[]{dataset.getData().relationName(),
-                    Double.toString(score.getTrainingPercent()),
-                    Double.toString(score.getDefectiveTraining()),
-                    Double.toString(score.getDefectiveTesting()),
-                    classifierInfo.getClassifier().toString(),
-                    classifierInfo.getSampling().toString(),
-                    classifierInfo.getFeatureSelection().toString(),
-                    classifierInfo.getSensitiveLearning().toString(),
-                    Double.toString(score.getTruePositive()),
-                    Double.toString(score.getFalsePositive()),
-                    Double.toString(score.getTrueNegative()),
-                    Double.toString(score.getFalseNegative()),
-                    Double.toString(score.getPrecision()),
-                    Double.toString(score.getRecall()),
-                    Double.toString(score.getAuc()),
-                    Double.toString(score.getKappa())};
-            csvWriter.writeLine(row);
-        }
+    public static void classifierInfoToCSV(Score score, Dataset dataset, ClassifierInfo classifierInfo, CSVWriter csvWriter) throws IOException {
+        String[] row = new String[]{dataset.getData().relationName(),
+                Double.toString(score.getTrainingPercent()),
+                Double.toString(score.getDefectiveTraining()),
+                Double.toString(score.getDefectiveTesting()),
+                classifierInfo.getClassifier().toString(),
+                classifierInfo.getSampling().toString(),
+                classifierInfo.getFeatureSelection().toString(),
+                classifierInfo.getSensitiveLearning().toString(),
+                Double.toString(score.getTruePositive()),
+                Double.toString(score.getFalsePositive()),
+                Double.toString(score.getTrueNegative()),
+                Double.toString(score.getFalseNegative()),
+                Double.toString(score.getPrecision()),
+                Double.toString(score.getRecall()),
+                Double.toString(score.getF1()),
+                Double.toString(score.getAuc()),
+                Double.toString(score.getKappa())};
+        csvWriter.writeLine(row);
         csvWriter.flush();
     }
 }

@@ -62,11 +62,12 @@ public class MLMetrics {
     }
 
     public void div(double div) {
-        this.accuracy = accuracy / div;
-        this.precision = precision / div;
-        this.recall = recall / div;
-        this.f1 = f1 / div;
-        this.kappa = kappa / div;
-        this.auc = auc / div;
+        if (div == 0) return;
+        this.accuracy /= div;
+        this.precision /= div;
+        this.recall /=  div;
+        this.f1 /= div;
+        this.kappa /= div;
+        this.auc /= div;
     }
 }

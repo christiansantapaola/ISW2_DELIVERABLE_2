@@ -83,4 +83,9 @@ public class WalkingForward {
         }
         return scoreList;
     }
+
+    public Score evaluateMean() throws WekaError {
+        List<Score> scores = this.evaluate();
+        return Score.mean(scores);
+    }
 }

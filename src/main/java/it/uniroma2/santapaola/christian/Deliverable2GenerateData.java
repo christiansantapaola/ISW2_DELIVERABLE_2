@@ -55,14 +55,18 @@ public class Deliverable2GenerateData {
 
     public static void doProjectAnalysis(ProjectData projectData, OutputDirectory outputDirectory) throws IOException, GitHandlerException {
         RepositoryMiner miner = buildRepositoryMiner(projectData, outputDirectory);
+        Logger.getLogger("isw2").log(Level.INFO, "repository successfully cloned");
         String[] fields = new String[]{"Version", "File Name", "LOC", "LOC_touched",
                 "NR", "NFix", "NAuth",
                 "LOC_added", "MAX_LOC_added", "AVG_LOC_ADDED",
                 "Churn", "MAX_churn", "AVG_Churn",
                 "ChgSetSize", "MAX_ChgSetSize", "AVG_ChgSetSize",
                 "AGE", "WeightedAge", "Buggy"};
+        Logger.getLogger("isw2").log(Level.INFO, "init CSVWriter()");
         CSVWriter csvWriter = new CSVWriter(new File(outputDirectory.getOutput() + projectData.getCSVOutput()), fields);
+        Logger.getLogger("isw2").log(Level.INFO, "CSVWriter() Successfully initialized");
         csvWriter.writeFieldName();
+        Logger.getLogger("isw2").log(Level.INFO, "Start writing data");
         ProjectState projectState = miner.newProjectState();
         while (projectState.next()) {
             for (String file : projectState.keySet()) {
