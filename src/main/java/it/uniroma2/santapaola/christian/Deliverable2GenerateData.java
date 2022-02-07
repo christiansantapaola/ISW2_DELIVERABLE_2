@@ -36,6 +36,10 @@ public class Deliverable2GenerateData {
         }
     }
 
+    /** buildRepositoryMiner: si occupa di instanziare un istanza di RepositoryMiner
+     * @param ProjectData: Contiene le informazioni riguardanti un progetto, quali il suoi link git e jira.
+     * @param OutputDirectory: Contiene le informazioni riguradanti dove salvare il risultato dell'estrazione.
+     * */
     public static RepositoryMiner buildRepositoryMiner(ProjectData projectData, OutputDirectory outputDirectory) throws IOException, GitHandlerException {
         return new RepositoryMiner(
                 outputDirectory.getRepository() + projectData.getProjectName(),
@@ -53,6 +57,15 @@ public class Deliverable2GenerateData {
         }
     }
 
+    /**
+    * doProjectAnalysis: Dato un progetto software esegue l'estrazione dei dati richiesti.
+     * @param ProjectData: Contiene le informazioni riguardanti un progetto, quali il suoi link git e jira.
+     * @param OutputDirectory: Contiene le informazioni riguradanti dove salvare il risultato dell'estrazione.
+     * L'analisi del progetto consiste nelle seguenti operazioni:
+     * 1. recuperare il repository tramite il comando git clone, se il repository è gia presente il clone verra saltato.
+     * 2. Instanziare la classe CSVWriter, la quale si occupa di scrivere file in formato csv.
+     * 3. Per ogni versione del progetto, eseguire l'analisi e scriverla sul file csv.
+    */
     public static void doProjectAnalysis(ProjectData projectData, OutputDirectory outputDirectory) throws IOException, GitHandlerException {
         RepositoryMiner miner = buildRepositoryMiner(projectData, outputDirectory);
         Logger.getLogger("isw2").log(Level.INFO, "repository successfully cloned");
@@ -71,7 +84,7 @@ public class Deliverable2GenerateData {
         while (projectState.next()) {
             for (String file : projectState.keySet()) {
                 ClassState classState = projectState.getState(file);
-                if (projectState.getVersion() <= projectState.getNoReleaseToProcess() || classState.isBuggy()) {
+                if (projectState.getVersion() <= projectState.getNumReleaseToProcess() || classState.isBuggy()) {
                     String[] row = new String[]{
                             Integer.toString(projectState.getVersion()),
                             classState.getClassName(),

@@ -6,7 +6,9 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
 
-
+/**
+ * La classe Dataset si occupa di leggere il dataset dal file CSV e di gestire l'accesso ai dati.
+ */
 public class Dataset {
     private Instances data;
     private Attribute version;

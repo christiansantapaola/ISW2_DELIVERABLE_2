@@ -5,6 +5,10 @@ import it.uniroma2.santapaola.christian.mining.Version;
 
 import java.util.List;
 
+/**
+ * Questa classe implemtenta l'algoritmo IncrementProportion,
+ * Data una versione, calcola il proportion, come il ratio tra il numero di bug risolti rispetto al numero di bug esistenti.
+ */
 public class IncrementProportion extends Proportion {
 
     private final List<Bug> bugs;

@@ -4,6 +4,10 @@ import it.uniroma2.santapaola.christian.mining.Bug;
 
 import java.util.List;
 
+
+/**
+ * Questa classe si occupa di gestire la creazione di un appropriata classe Proportion.
+ */
 public class ProportionBuilder {
 
     public enum ProportionType {

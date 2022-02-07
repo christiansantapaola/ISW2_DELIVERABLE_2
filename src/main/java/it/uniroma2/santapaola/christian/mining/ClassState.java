@@ -5,6 +5,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Questa classe tiene traccia di tutte le informazioni utili per una classe in un progetto ad una determinata versione.
+ */
 public class ClassState {
     private String projectName;
     private String className;

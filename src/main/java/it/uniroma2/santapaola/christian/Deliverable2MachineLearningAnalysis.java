@@ -46,6 +46,9 @@ public class Deliverable2MachineLearningAnalysis {
         return result.toArray(new Pipeline[]{});
     }
 
+    /**
+     *
+     */
     public static void main(String[] args) throws Exception {
         if (args.length != 2) {
             LOGGER.log(Level.SEVERE, "USAGE: command <data.csv> <output.csv>");

@@ -1,5 +1,8 @@
 package it.uniroma2.santapaola.christian.ml;
 
+/**
+ * ConfusionMatrix implementa una matrice di confusione per classificazione binaria.
+ */
 public class ConfusionMatrix {
     private double truePositive;
     private double trueNegative;

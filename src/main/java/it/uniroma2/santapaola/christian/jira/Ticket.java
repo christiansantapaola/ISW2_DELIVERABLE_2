@@ -2,6 +2,9 @@ package it.uniroma2.santapaola.christian.jira;
 
 import java.time.LocalDate;
 
+/**
+ * La classe Ticket salva le informazioni riguardanti un ticket jira.
+ */
 public class Ticket {
     private String id;
     private String key;

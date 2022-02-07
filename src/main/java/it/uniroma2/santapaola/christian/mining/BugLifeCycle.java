@@ -3,6 +3,10 @@ package it.uniroma2.santapaola.christian.mining;
 import it.uniroma2.santapaola.christian.jira.Release;
 import it.uniroma2.santapaola.christian.proportion.Proportion;
 
+/**
+ * Questa classe tiene traccia del ciclo di vita di un bug,
+ * tiene traccia di un bug, delle sue versioni OV e FV, e dato il metodo di proportion, la versione IV.
+ */
 public class BugLifeCycle {
     private Bug bug;
     private Version iv;

@@ -6,6 +6,9 @@ import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+/**
+ * La classe ReleaseTimeline si occupa di gestire le releases di un progetto softare prese dal servizio jira.
+ */
 public class ReleaseTimeline implements Iterable<Release> {
     private SortedSet<Release> releases;
     private static final ReleaseComparator rc = new ReleaseComparator();

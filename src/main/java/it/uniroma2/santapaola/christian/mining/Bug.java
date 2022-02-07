@@ -7,6 +7,9 @@ import java.time.LocalDate;
 import java.util.Set;
 
 
+/**
+ * La classe bug si occupa di associare un ticket di un bug preso da jira con l'apposito commit preso da git.
+ */
 public class Bug {
 
     private Commit commit;

@@ -11,9 +11,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.List;
 /**
- *  it.uniroma2.santapaola.christian.JiraSubSystem.JiraHandler is a class which interface with JIRA.
- *  This class will handle query to jira given a project, parse the output and return it in a
- *  format usable in java.
+ *  it.uniroma2.santapaola.christian.JiraSubSystem.JiraHandler è una classe che si occupa
+ *  di interfacciarsi ad un servizio jira e ritornare le informazioni richieste in
+ *  un formato nativo in java.
  *
  * @author Christian Santapaola
  */
@@ -26,8 +26,8 @@ public class JiraHandler {
 
 
     /**
-     * Constructor of it.uniroma2.santapaola.christian.JiraSubSystem.JiraHandler
-     * @param projectName, is the name of the project on JIRA.
+     * Construttore di JiraHandler
+     * @param projectName, nome del progetto.
      */
     public JiraHandler(String projectName, String jiraUrl) {
         this.projectName = projectName;
@@ -37,7 +37,7 @@ public class JiraHandler {
 
 
     /**
-     * getter of projectName
+     * getter
      * @return String ProjectName
      */
     public String getProjectName() {
@@ -51,8 +51,8 @@ public class JiraHandler {
     public String getJiraUrl() { return jiraUrl; }
 
     /**
-     * getBugTicketID() send a query to JIRA and return a list of bug identifier in the format [projectName-ID]
-     * @return List<String> containg the bug identifier in the format [projectName-ID]
+     * getBugTicketID() invia una query a jira e ritorna una lista di bug ticket nell formato [projectName-ID]
+     * @return List<String> contiene i bug ticket nel formato [projectName-ID]
      * @throws IOException
      * @throws JSONException
      */
@@ -93,8 +93,8 @@ public class JiraHandler {
     }
 
     /**
-     * getRelease() return a list of all release of the given project.
-     * @return List<Release>
+     * getRelease() ritorna tutte le release di un progetto software.
+     * @return ReleaseTimeline.
      * @throws IOException
      * @throws JSONException
      */

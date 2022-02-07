@@ -2,6 +2,12 @@ package it.uniroma2.santapaola.christian.jira;
 
 import java.time.LocalDate;
 
+
+/**
+ * La classe Release tiene traccia delle informazini riguardanti una singola release di un progetto software prese
+ * dal software jira.
+ */
+
 public class Release {
     private String name;
     private String id;

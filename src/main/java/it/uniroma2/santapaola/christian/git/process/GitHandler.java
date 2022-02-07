@@ -9,6 +9,10 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * GitHandler implementa l'interfaccia git, tramite la libreria java process.
+ * Chiama il software git da cmd e esegue il parsing dell'output.
+ */
 public class GitHandler implements Git {
     public static final String DATE_ISO_8601 = "--date=iso8601";
     private final File repositoryRoot;

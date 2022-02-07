@@ -4,6 +4,10 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Questa classe si occupa di gestire il pattern per riconoscere una versione.
+ * Il pattern è basato su regex.
+ */
 public class VersionPattern {
     private Pattern pattern;
 

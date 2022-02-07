@@ -1,5 +1,9 @@
 package it.uniroma2.santapaola.christian.git;
 
+
+/**
+ * Diffstat ritorna il risultato di un operazione di diff tra due commit.
+ */
 public class DiffStat {
     private String oldPath;
     private String newPath;

@@ -3,6 +3,9 @@ package it.uniroma2.santapaola.christian.mining;
 import it.uniroma2.santapaola.christian.git.Tag;
 import it.uniroma2.santapaola.christian.jira.Release;
 
+/**
+ * Version classe associa le release presa da jira con il corrispondente Tag preso dal repository git.
+ */
 public class Version {
     private Release release;
     private Tag tag;

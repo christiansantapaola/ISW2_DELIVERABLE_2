@@ -4,6 +4,9 @@ import it.uniroma2.santapaola.christian.git.process.GitHandler;
 
 import java.io.File;
 
+/**
+ * GitFactory si occupa di instanziare una classe GitHandler.
+ */
 public class GitFactory {
 
     private String url;

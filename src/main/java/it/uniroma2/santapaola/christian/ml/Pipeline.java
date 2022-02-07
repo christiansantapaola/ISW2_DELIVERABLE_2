@@ -12,6 +12,11 @@ import weka.filters.Filter;
 import weka.filters.MultiFilter;
 import weka.filters.supervised.attribute.AttributeSelection;
 
+
+/**
+ * Pipeline è una classe che si occupa di gestire il processo di classificazione.
+ * Gestisce un classificatore più le varie tecniche di preparazione del dataset.
+ */
 public class Pipeline {
     private MultiFilter multiFilter;
     private FilteredClassifier classifier;

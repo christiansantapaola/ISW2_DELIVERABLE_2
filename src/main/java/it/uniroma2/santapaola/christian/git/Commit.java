@@ -3,6 +3,9 @@ package it.uniroma2.santapaola.christian.git;
 
 import java.time.LocalDate;
 
+/**
+ * la classe Commit tiene traccia delle informazioni di un commit.
+ */
 public class Commit {
     private String name;
     private String author;

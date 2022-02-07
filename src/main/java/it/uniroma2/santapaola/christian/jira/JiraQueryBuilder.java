@@ -1,6 +1,9 @@
 package it.uniroma2.santapaola.christian.jira;
 
 
+/**
+ * La classe JiraQueryBuilder si occupa di costruire query per il servizio jira.
+ */
 public class JiraQueryBuilder {
     private String jiraUrl;
     private String projectName;

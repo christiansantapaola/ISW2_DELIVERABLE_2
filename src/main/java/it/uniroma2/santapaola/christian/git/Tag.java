@@ -1,5 +1,8 @@
 package it.uniroma2.santapaola.christian.git;
 
+/**
+ * La classe TAG associa il nome di un tag con il suo commit id.
+ */
 public class Tag {
     private String name;
     private String id;

@@ -9,6 +9,11 @@ import weka.core.Instances;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Questa classe implementa la tecnica di validazione Walking Forward.
+ * Richiede una istanza di una classe Pipeline, la quale si occupa di gestire il training ed il testing dei classificatori.
+ * Un istanza della classe Dataset.
+ */
 public class WalkingForward {
     private Pipeline pipeline;
     private Dataset dataset;
@@ -34,6 +39,12 @@ public class WalkingForward {
         return max;
     }
 
+    /**
+     * get() ritorna una coppia Training Set, Testing set tali che
+     * Il training set comprende tutti i dati fino lala
+     * @param version, intero che indica l'indice della versione.
+     * @return Una coppia Traininig Set, Testing set.
+     */
     public Pair<Instances, Instances> get(int version) {
         Instances tr = new Instances(dataset.getData(), 0);
         Instances ts = new Instances(dataset.getData(), 0);
@@ -54,6 +65,12 @@ public class WalkingForward {
     private double computeIncorrect(Evaluation evaluation) {
         return ((evaluation.correct() + evaluation.incorrect()) != 0) ? evaluation.incorrect() / (evaluation.correct() + evaluation.incorrect()) : 0;
     }
+
+    /**
+     * evaluate() esegue l'algoritmo Walking forward su tutte le versioni.
+     * @return Una lista contentente Il risultato di ogni iterazione.
+     * @throws WekaError
+     */
     public List<Score> evaluate() throws WekaError {
         int classIndex = dataset.getPositiveClassIndex();
         List<Score> scoreList = new ArrayList<>();
@@ -84,6 +101,11 @@ public class WalkingForward {
         return scoreList;
     }
 
+    /**
+     * evaluateMean() esegue l'algoritmo di Walking forward per tutte le versioni è ritorna la media dei risultati.
+     * @return La classe Score contenente la media dei risultati del metodo evaluate().
+     * @throws WekaError
+     */
     public Score evaluateMean() throws WekaError {
         List<Score> scores = this.evaluate();
         return Score.mean(scores);

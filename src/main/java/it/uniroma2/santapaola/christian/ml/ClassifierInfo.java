@@ -13,6 +13,10 @@ import weka.filters.unsupervised.instance.Resample;
 
 import java.util.ArrayList;
 
+/**
+ * ClassifierInfo tiene traccia del tipo di classificatore e del tecniche di preparazione dei dati.
+ * Inoltre si occupa di creare una nuova classe Pipeline.
+ */
 public class ClassifierInfo {
     private ClassifierType classifier;
     private Sampling sampling;

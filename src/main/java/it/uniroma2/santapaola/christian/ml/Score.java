@@ -2,6 +2,11 @@ package it.uniroma2.santapaola.christian.ml;
 
 import java.util.List;
 
+/**
+ * La classe Score tiene traccia delle metriche di valutazione di un classificatore,
+ * Tiene traccia della matrice di confusione di varie metriche di valutazioni, quali F1, Auc, etc..
+ * Infine tiene traccia di dati riguardanti il training e il testing.
+ */
 public class Score {
     private ConfusionMatrix confusionMatrix;
     private MLMetrics metrics;
